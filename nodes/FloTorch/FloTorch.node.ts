@@ -91,7 +91,8 @@ export class FloTorch implements INodeType {
 				output.push({
 					json: {
 						role: output_role,
-						content: output_content
+						content: output_content,
+						output: output_content // this field is what Chat Trigger looks for
 					}
 				});
 			} catch (error) {
