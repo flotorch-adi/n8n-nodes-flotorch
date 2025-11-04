@@ -5,11 +5,12 @@ import {
     type INodeTypeDescription,
     type SupplyData,
 } from 'n8n-workflow'
-import { FloTorchLangChainLLM } from './utils/FloTorchLangChainLLM'
+import { FloTorchLangChainLLM, FloTorchLangChainLLMParams } from '../../utils/FloTorchLangChainLLM'
+import { FloTorchBaseUrl } from '../../utils/FloTorchUtils';
 
 export class LmChatFloTorch implements INodeType {
     description: INodeTypeDescription = {
-		displayName: 'FlTorch Chat Model',
+		displayName: 'FloTorch Chat Model',
 
 		name: 'lmChatFloTorch',
 		icon: 'file:../../icons/flotorch.svg',
@@ -56,11 +57,18 @@ export class LmChatFloTorch implements INodeType {
     }
 
     async supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData> {
+		const modelName = this.getNodeParameter('model', 0) as string;
         const credentials = await this.getCredentials('flotorchApi');
         const apiKey = credentials.apiKey as string;
-		const modelName = this.getNodeParameter('model', 0) as string;
+		const baseUrl = credentials.baseUrl as FloTorchBaseUrl;
 
-        const model = new FloTorchLangChainLLM(modelName, apiKey, );
+		const fields: FloTorchLangChainLLMParams = {
+			model: modelName,
+			apiKey: apiKey,
+			baseUrl: baseUrl,
+		}
+
+        const model = new FloTorchLangChainLLM(fields);
 
         return {
             response: model

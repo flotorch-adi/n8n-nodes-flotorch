@@ -1,18 +1,19 @@
-import { FloTorchLlm, Message, Messages } from "../utils/FloTorchLLM";
+import { FloTorchLLM } from "../../../utils/FloTorchLLM";
+import { FloTorchMessage } from "../../../utils/FloTorchUtils";
 
 async function run() {
-    const apiKey = "sk_kEKzE6jrtujJaco4MsS67U8H3D8UGvJQVQtJ6EbVASI=_OGQyODIyOWMtMTcxNC00NDM3LThlNWItNGFkZWU3MWRhMTRm_ZTFhOGNhNTgtNWY2ZS00ZTYwLWE3YzMtZTdmOTEyMTBjYzk3"; // replace with your actual key
-    const client = new FloTorchLlm(apiKey);
+    const model = 'flotorch/default'
+    const apiKey = "sk_kEKzE6jrtujJaco4MsS67U8H3D8UGvJQVQtJ6EbVASI=_OGQyODIyOWMtMTcxNC00NDM3LThlNWItNGFkZWU3MWRhMTRm_ZTFhOGNhNTgtNWY2ZS00ZTYwLWE3YzMtZTdmOTEyMTBjYzk3";
+    const client = new FloTorchLLM(model, apiKey);
 
-    const message: Message = {
+    const message: FloTorchMessage = {
         role: 'user',
         content: 'Hello! How are you?'
     }
-    const messages: Messages = [message]
-    const model = 'flotorch/default'
+    const messages: FloTorchMessage[] = [message]
     
     try {
-        const output = await client.invoke(model, messages);
+        const output = await client.invoke(messages);
         console.log("Chat response:", output);
     } catch (err) {
         console.error("Failed to get chat response:", err);
