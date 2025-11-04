@@ -34,7 +34,8 @@
 			"dist/credentials/FloTorchApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/FloTorch/FloTorch.node.js"
+			"dist/nodes/FloTorch/FloTorch.node.js",
+			"dist/nodes/LmChatFloTorch/LmChatFloTorch.node.js"
 		]
 	},
 	"devDependencies": {
@@ -43,9 +44,16 @@
 		"eslint": "9.32.0",
 		"prettier": "3.6.2",
 		"release-it": "^19.0.4",
-		"typescript": "5.9.2"
+		"ts-node": "^10.9.2",
+		"typescript": "^5.9.2"
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"
+	},
+	"dependencies": {
+		"langchain": "^1.0.2",
+		"@langchain/core": "^0.2.27",
+		"@langchain/openai": "^0.2.2",
+		"zod": "^4.1.12"
 	}
 }
