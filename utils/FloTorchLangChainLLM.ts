@@ -40,23 +40,20 @@ export class FloTorchLangChainLLM extends BaseChatModel {
     }
 
     async _generate(messages: BaseMessage[]): Promise<ChatResult> {
-        console.log("GENERATE START")
+        console.log("INPUT LANGCHAIN MESSAGES",  JSON.stringify(messages, null, 2))
 
         // LangChain to FloTorch
         const inputFloTorchMessages = convertToFloTorchMessages(messages);
 
-        console.log("INPUT FLOTORCH MESSAGES", inputFloTorchMessages)
+        console.log("INPUT FLOTORCH MESSAGES",  JSON.stringify(inputFloTorchMessages, null, 2))
 
+        const outputFloTorchMessages = await this._llm.invoke(inputFloTorchMessages, this._tools);
 
-        const outputFloTorchMessages = await this._llm.invoke(inputFloTorchMessages);
-
-        console.log("GENERATE MIDDLE")
+        console.log("OUTPUT FLOTORCH MESSAGES",  JSON.stringify(outputFloTorchMessages, null, 2))
 
         // FloTorch to LangChain
         const langchainMessages = convertToLangChainMessages(outputFloTorchMessages)
         const result = convertToChatResult(langchainMessages)
-
-        console.log("GENERATE END")
 
         return result;
     }
