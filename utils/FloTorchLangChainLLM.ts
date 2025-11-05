@@ -3,7 +3,7 @@ import {
 } from "@langchain/core/messages";
 import { ChatResult } from "@langchain/core/outputs";
 import { BaseChatModel, BaseChatModelCallOptions, BaseChatModelParams, BindToolsInput } from "@langchain/core/language_models/chat_models";
-import { formatToOpenAITool } from "@langchain/openai"
+import { convertToOpenAITool } from "@langchain/core/utils/function_calling";
 import { FloTorchLLM } from "./FloTorchLLM";
 import {
     FloTorchBaseUrl,
@@ -40,13 +40,24 @@ export class FloTorchLangChainLLM extends BaseChatModel {
     }
 
     async _generate(messages: BaseMessage[]): Promise<ChatResult> {
+        console.log("GENERATE START")
+
         // LangChain to FloTorch
         const inputFloTorchMessages = convertToFloTorchMessages(messages);
+
+        console.log("INPUT FLOTORCH MESSAGES", inputFloTorchMessages)
+
+
         const outputFloTorchMessages = await this._llm.invoke(inputFloTorchMessages);
+
+        console.log("GENERATE MIDDLE")
 
         // FloTorch to LangChain
         const langchainMessages = convertToLangChainMessages(outputFloTorchMessages)
         const result = convertToChatResult(langchainMessages)
+
+        console.log("GENERATE END")
+
         return result;
     }
 
@@ -56,7 +67,7 @@ export class FloTorchLangChainLLM extends BaseChatModel {
             apiKey: this._apiKey,
             baseUrl: this._baseUrl,
             llm: this._llm,
-            tools: tools.map((tool) => formatToOpenAITool(tool)),
+            tools: tools.map((tool) => convertToOpenAITool(tool)),
             ...kwargs
         });
     }

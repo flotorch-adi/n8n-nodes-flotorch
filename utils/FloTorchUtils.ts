@@ -8,8 +8,8 @@ import {
     BaseMessage,
     AIMessageFields,
     BaseMessageFields,
-    FunctionMessageFieldsWithName,
-    ToolMessageFieldsWithToolCallId,
+    FunctionMessageFields,
+    ToolMessageFields,
 } from "@langchain/core/messages";
 import { ChatGeneration, ChatResult } from '@langchain/core/outputs';
 
@@ -86,6 +86,8 @@ export async function invoke(params: InvokeParams) {
         ...additionalParams,
     };
 
+    console.log("BODY", body)
+
     const payload = {
         method: 'POST',
         headers: {
@@ -95,12 +97,21 @@ export async function invoke(params: InvokeParams) {
         body: JSON.stringify(body),
     }
 
-    return fetch(url, payload);
+    console.log("PAYLOAD", payload)
+
+    const response = await fetch(url, payload);
+
+    console.log("RESPONSE", response)
+
+    return response;
 }
 
 export async function getFloTorchMessages(response: Response): Promise<FloTorchMessage[]> {
+    console.log("RESPONSE", response)
     const json = await response.json();
+    console.log("JSON", json)
     const data = FloTorchChatResponseSchema.parse(json);
+    console.log("DATA", data)
 
     const messages = data.choices.map((choice) => {
         const message: FloTorchMessage = {
@@ -109,6 +120,8 @@ export async function getFloTorchMessages(response: Response): Promise<FloTorchM
         };
         return message;
     })
+
+    console.log("MESSAGES", messages)
 
     return messages;
 }
@@ -128,8 +141,10 @@ export function convertToFloTorchMessages(messages: BaseMessage[]): FloTorchMess
         } else if (msg instanceof ToolMessage) {
             role = "tool";
         } else {
-            role = msg._getType();
+            role = "user";
         }
+
+        console.log('ROLE', role)
         
         return {
             role: role,
@@ -161,13 +176,13 @@ export function convertToLangChainMessages(messages: FloTorchMessage[]): BaseMes
             };
             output = new SystemMessage(fields);
         } else if (msg.role == "function") {
-            const fields: FunctionMessageFieldsWithName = {
+            const fields: FunctionMessageFields = {
                 content: content,
                 name: 'function name'
             };
             output = new FunctionMessage(fields);
         } else if (msg.role == "tool") {
-            const fields: ToolMessageFieldsWithToolCallId = {
+            const fields: ToolMessageFields = {
                 content: content,
                 tool_call_id: "tool call id"
             };
