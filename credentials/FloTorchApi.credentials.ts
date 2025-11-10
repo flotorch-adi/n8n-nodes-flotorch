@@ -6,6 +6,7 @@ import type {
 	INodeProperties,
 	Icon
 } from 'n8n-workflow';
+import { FloTorchBaseUrl } from '../utils/FloTorchUtils';
 
 export class FloTorchApi implements ICredentialType {
 	name = 'flotorchApi';
@@ -41,18 +42,18 @@ export class FloTorchApi implements ICredentialType {
 			options: [
 				{
 					name: 'Amazon Web Services',
-					value: 'https://gateway.flotorch.cloud',
+					value: FloTorchBaseUrl.AWS,
 				},
 				{
 					name: 'Microsoft Azure',
-					value: 'https://gateway-azure.flotorch.cloud',
+					value: FloTorchBaseUrl.AZURE,
 				},
 				{
 					name: 'Google Cloud',
-					value: 'https://gateway-gcp.flotorch.cloud'
+					value: FloTorchBaseUrl.GCP
 				}
 			],
-			default: 'https://gateway.flotorch.cloud',
+			default: FloTorchBaseUrl.DEFAULT,
 			description: 'Override the default base URL for the API',
 		},
 		{
