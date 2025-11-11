@@ -6,7 +6,7 @@ import type {
 	INodeProperties,
 	Icon
 } from 'n8n-workflow';
-import { FloTorchBaseUrl } from '../utils/FloTorchUtils';
+import { FloTorchPages, FloTorchBaseUrls } from '../flotorch/sdk/constants';
 
 export class FloTorchApi implements ICredentialType {
 	name = 'flotorchApi';
@@ -15,7 +15,7 @@ export class FloTorchApi implements ICredentialType {
 
 	icon: Icon = { light: 'file:../icons/flotorch.svg', dark: 'file:../icons/flotorch.svg' };
 
-	documentationUrl = 'https://flotorch.ai';
+	documentationUrl = FloTorchPages.HOMEPAGE;
 
 	properties: INodeProperties[] = [
 		{
@@ -27,34 +27,12 @@ export class FloTorchApi implements ICredentialType {
 			default: '',
 		},
 		{
-			displayName: 'Organization ID (optional)',
-			name: 'organizationId',
+			displayName: 'Base URL',
+			name: 'baseUrl',
 			type: 'string',
-			default: '',
-			hint: 'Only required if you belong to multiple organisations',
-			description:
-				"For users who belong to multiple organizations, you can set which organization is used for an API request. Usage from these API requests will count against the specified organization's subscription quota.",
-		},
-		{
-			displayName: 'Cloud Provider',
-			name: 'url',
-			type: 'options',
-			options: [
-				{
-					name: 'Amazon Web Services',
-					value: FloTorchBaseUrl.AWS,
-				},
-				{
-					name: 'Microsoft Azure',
-					value: FloTorchBaseUrl.AZURE,
-				},
-				{
-					name: 'Google Cloud',
-					value: FloTorchBaseUrl.GCP
-				}
-			],
-			default: FloTorchBaseUrl.DEFAULT,
-			description: 'Override the default base URL for the API',
+			required: true,
+			default: FloTorchBaseUrls.DEFAULT,
+			description: 'Set the base URL for your FloTorch account',
 		},
 		{
 			displayName: 'Add Custom Header',
@@ -91,7 +69,7 @@ export class FloTorchApi implements ICredentialType {
 
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: '={{$credentials?.url}}',
+			baseURL: '={{$credentials?.baseUrl}}',
 			url: '/openai/v1/chat/completions',
 			method: 'POST',
 			body: {
@@ -111,9 +89,7 @@ export class FloTorchApi implements ICredentialType {
 		requestOptions: IHttpRequestOptions,
 	): Promise<IHttpRequestOptions> {
 		requestOptions.headers ??= {};
-
 		requestOptions.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
-		requestOptions.headers['FloTorch-Organization'] = credentials.organizationId;
 
 		if (
 			credentials.header &&
