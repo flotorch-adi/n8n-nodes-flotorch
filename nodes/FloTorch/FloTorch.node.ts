@@ -14,13 +14,30 @@ export class FloTorch implements INodeType {
 		icon: { light: 'file:../../icons/flotorch.svg', dark: 'file:../../icons/flotorch.svg' },
 		group: ['input'],
 		version: 1,
-		description: 'Use this node to chat with AI models. It expects a chatInput field in your json output. Send your question in the chatInput field.',
+		description: 'Language models provided by FloTorch',
 		defaults: {
 			name: 'FloTorch',
 		},
+		// codex: {
+		// 	categories: ["AI"],
+		// 	subcategories: {
+		// 		AI : ["Language Models", 'Miscellaneous', 'Root Nodes']
+		// 	},
+		// 	resources: {
+		// 		credentialDocumentation: [
+		// 			{
+		// 				url: "https://flotorch.ai"
+		// 			}
+		// 		],
+		// 		primaryDocumentation: [
+		// 			{
+		// 				url: "https://flotorch.ai"
+		// 			}
+		// 		]
+		// 	}
+		// },
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
-		usableAsTool: true,
 		credentials: [
 			{
 				name: 'flotorchApi',

@@ -5,8 +5,7 @@ import {
     type INodeTypeDescription,
     type SupplyData,
 } from 'n8n-workflow'
-import { FloTorchLangChainLLM, FloTorchLangChainLLMParams } from '../../utils/FloTorchLangChainLLM'
-import { FloTorchBaseUrl } from '../../utils/FloTorchUtils';
+import { FloTorchLangChainLLM, FloTorchLangChainLLMParams } from '../../flotorch/langchain/llm'
 
 export class LmChatFloTorch implements INodeType {
     description: INodeTypeDescription = {
@@ -21,20 +20,20 @@ export class LmChatFloTorch implements INodeType {
 		defaults: {
 			name: 'FloTorch Chat Model',
 		},
-		codex: {
-			categories: ['AI'],
-			subcategories: {
-				AI: ['Language Models', 'Root Nodes'],
-				'Language Models': ['Chat Models (Recommended)'],
-			},
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://flotorch.ai',
-					},
-				],
-			},
-		},
+		// codex: {
+		// 	categories: ['AI'],
+		// 	subcategories: {
+		// 		AI: ['Language Models'],
+		// 		'Language Models': ['Chat Models (Recommended)'],
+		// 	},
+		// 	resources: {
+		// 		primaryDocumentation: [
+		// 			{
+		// 				url: 'https://flotorch.ai',
+		// 			},
+		// 		],
+		// 	},
+		// },
         inputs: [],
         outputs: [NodeConnectionTypes.AiLanguageModel],
         outputNames: ['Model'],
@@ -60,7 +59,7 @@ export class LmChatFloTorch implements INodeType {
 		const modelName = this.getNodeParameter('model', 0) as string;
         const credentials = await this.getCredentials('flotorchApi');
         const apiKey = credentials.apiKey as string;
-		const baseUrl = credentials.baseUrl as FloTorchBaseUrl;
+		const baseUrl = credentials.baseUrl as string;
 
 		const fields: FloTorchLangChainLLMParams = {
 			model: modelName,

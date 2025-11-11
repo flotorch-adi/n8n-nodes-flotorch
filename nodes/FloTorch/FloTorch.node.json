@@ -2,9 +2,9 @@
 	"node": "n8n-nodes-flotorch",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
-	"categories": ["Development", "Developer Tools", "AI"],
+	"categories": ["AI"],
 	"subcategories": {
-		"AI" : ["Language Models"]
+		"AI" : ["Root Nodes"]
 	},
 	"resources": {
 		"credentialDocumentation": [
