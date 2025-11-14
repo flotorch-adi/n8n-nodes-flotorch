@@ -27,12 +27,17 @@ export class LmChatFloTorch implements INodeType {
 		// 		'Language Models': ['Chat Models (Recommended)'],
 		// 	},
 		// 	resources: {
+		// 		credentialDocumentation: [
+		// 			{
+		// 				url: "https://flotorch.ai"
+		// 			}
+		// 		],
 		// 		primaryDocumentation: [
 		// 			{
-		// 				url: 'https://flotorch.ai',
-		// 			},
-		// 		],
-		// 	},
+		// 				url: "https://flotorch.ai"
+		// 			}
+		// 		]
+		// 	}
 		// },
         inputs: [],
         outputs: [NodeConnectionTypes.AiLanguageModel],
@@ -47,10 +52,17 @@ export class LmChatFloTorch implements INodeType {
 			{
 				displayName: 'Model',
 				name: 'model',
-				type: 'string',
-				default: '',
-				placeholder: 'Your FloTorch model',
+				type: 'options',
+				options: [
+					{ name: 'Claude Sonnet 4.5', value: 'flotorch/flotorch-claude-sonnet-4-5' },
+					{ name: 'Claude Haiku 4.5', value: 'flotorch/flotorch-claude-haiku-4-5' },
+					{ name: 'Amazon Nova Pro', value: 'flotorch/flotorch-aws-nova-pro' },
+					{ name: 'Amazon Nova Lite', value: 'flotorch/flotorch-aws-nova-lite' },
+					{ name: 'Amazon Nova Micro', value: 'flotorch/flotorch-aws-nova-micro' },
+				],
+				default: 'flotorch/flotorch-aws-nova-micro',
 				description: 'FloTorch Model',
+				hint: 'Select one of the options or enter a custom model ID like so: {{ flotorch/modelId }}.'
 			},
 		],
     }
