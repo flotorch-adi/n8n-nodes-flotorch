@@ -16,7 +16,7 @@ import { FloTorchMessage } from '../../flotorch/sdk/llm/utils';
 export class FloTorch implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'FloTorch',
-		name: 'example',
+		name: 'flotorch',
 		icon: { light: 'file:../../icons/flotorch.svg', dark: 'file:../../icons/flotorch.svg' },
 		group: ['input'],
 		version: 1,
@@ -24,24 +24,6 @@ export class FloTorch implements INodeType {
 		defaults: {
 			name: 'FloTorch',
 		},
-		// codex: {
-		// 	categories: ["AI"],
-		// 	subcategories: {
-		// 		AI : ["Language Models", 'Miscellaneous', 'Root Nodes']
-		// 	},
-		// 	resources: {
-		// 		credentialDocumentation: [
-		// 			{
-		// 				url: "https://flotorch.ai"
-		// 			}
-		// 		],
-		// 		primaryDocumentation: [
-		// 			{
-		// 				url: "https://flotorch.ai"
-		// 			}
-		// 		]
-		// 	}
-		// },
 		inputs: [
 			NodeConnectionTypes.Main,
 			{

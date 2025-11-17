@@ -10,7 +10,6 @@ import { FloTorchLangChainLLM, FloTorchLangChainLLMParams } from '../../flotorch
 export class LmChatFloTorch implements INodeType {
     description: INodeTypeDescription = {
 		displayName: 'FloTorch Chat Model',
-
 		name: 'lmChatFloTorch',
 		icon: 'file:../../icons/flotorch.svg',
 		group: ['transform'],
@@ -20,25 +19,6 @@ export class LmChatFloTorch implements INodeType {
 		defaults: {
 			name: 'FloTorch Chat Model',
 		},
-		// codex: {
-		// 	categories: ['AI'],
-		// 	subcategories: {
-		// 		AI: ['Language Models'],
-		// 		'Language Models': ['Chat Models (Recommended)'],
-		// 	},
-		// 	resources: {
-		// 		credentialDocumentation: [
-		// 			{
-		// 				url: "https://flotorch.ai"
-		// 			}
-		// 		],
-		// 		primaryDocumentation: [
-		// 			{
-		// 				url: "https://flotorch.ai"
-		// 			}
-		// 		]
-		// 	}
-		// },
         inputs: [],
         outputs: [NodeConnectionTypes.AiLanguageModel],
         outputNames: ['Model'],
