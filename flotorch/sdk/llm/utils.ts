@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ToolDefinition } from '@langchain/core/language_models/base';
 import {
     FloTorchEndpoints,
 } from '.././constants'
@@ -46,7 +45,12 @@ export interface FloTorchMessage {
     tool_call_id?: string | undefined;
 };
 
-export interface FloTorchToolDefinition extends ToolDefinition {};
+export interface FloTorchToolDefinition {
+	type: 'function';
+	name: string;
+	parameters: Record<string, unknown>; // JSON Schema 7
+	description?: string;
+};
 
 export interface FloTorchToolCall {
     type: string,

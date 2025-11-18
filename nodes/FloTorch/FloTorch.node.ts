@@ -30,7 +30,7 @@ export class FloTorch implements INodeType {
 				type: NodeConnectionTypes.AiMemory,
 				displayName: 'Memory',
 				maxConnections: 1,
-			}, 
+			},
 			{
 				type: NodeConnectionTypes.AiTool,
 				displayName: 'Tools',
@@ -51,7 +51,7 @@ export class FloTorch implements INodeType {
 		properties: [
 			{
 				displayName: 'Model',
-				name: 'model',
+				name: 'defaultModel',
 				type: 'options',
 				options: [
 					{ name: 'Claude Sonnet 4.5', value: 'flotorch/flotorch-claude-sonnet-4-5' },
@@ -61,23 +61,41 @@ export class FloTorch implements INodeType {
 					{ name: 'Amazon Nova Micro', value: 'flotorch/flotorch-aws-nova-micro' },
 				],
 				default: 'flotorch/flotorch-aws-nova-micro',
-				description: 'FloTorch Model',
-				hint: 'Select one of the options or enter a custom model ID like so: {{ flotorch/modelId }}.'
+				displayOptions: {
+					show: {
+						toggleCustomModel: [false] // Shows when the boolean is true
+					}
+				},
+				description: 'FloTorch model',
+				hint: 'Select one of the default FloTorch models'
+			},
+			{
+				displayName: 'Model',
+				name: 'customModel',
+				type: 'string',
+				default: 'flotorch/model',
+				displayOptions: {
+					show: {
+						toggleCustomModel: [true] // Shows when the boolean is true
+					}
+				},
+				description: 'FloTorch model',
+				hint: 'Enter the model ID (e.g., flotorch/model)'
+			},
+			{
+				displayName: 'Use Custom Model',
+				name: 'toggleCustomModel',
+				type: 'boolean',
+				default: false, // Initial state of the toggle
+				description: 'Use a custom configured FloTorch model',
 			},
 		],
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
-
-		let model: string = "";
-		try {
-			model = this.getNodeParameter('model', 0) as string;
-		} catch (error) {
-			throw new NodeOperationError(this.getNode(), 'Failed to retrieve "model" parameter.', {
-				description: error instanceof Error ? error.message : String(error),
-			});
-		}
+		const useCustomModel = this.getNodeParameter('toggleCustomModel', 0) as boolean;
+		const model = useCustomModel ? this.getNodeParameter('customModel', 0) as string : this.getNodeParameter('defaultModel', 0) as string;
 
 		const credentials = await this.getCredentials('flotorchApi');
 		const baseUrl = credentials.baseUrl;

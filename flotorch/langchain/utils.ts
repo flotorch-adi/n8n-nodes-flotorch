@@ -12,7 +12,8 @@ import {
     ToolMessageFields
 } from "@langchain/core/messages";
 import { ChatGeneration, ChatResult } from "@langchain/core/outputs";
-import { FloTorchMessage, FloTorchToolCall } from "../sdk/llm/utils";
+import { FloTorchMessage, FloTorchToolCall, FloTorchToolDefinition } from "../sdk/llm/utils";
+import { ToolDefinition } from "@langchain/core/language_models/base";
 
 
 export function convertToFloTorchMessages(messages: BaseMessage[]): FloTorchMessage[] {
@@ -125,12 +126,12 @@ export function convertToChatResult(messages: BaseMessage[]): ChatResult {
             text: '',
             message: msg
         }
-        return generation
+        return generation;
     });
     const result: ChatResult = {
         generations: generations
     };
-    return result
+    return result;
 }
 
 export function convertToFloTorchToolCalls(tool_calls: ToolCall[]): FloTorchToolCall[] {
@@ -144,9 +145,9 @@ export function convertToFloTorchToolCalls(tool_calls: ToolCall[]): FloTorchTool
             id: tool_call.id || "",
         }
 
-        return formattedToolCall
+        return formattedToolCall;
     });
-    return formattedToolCalls
+    return formattedToolCalls;
 }
 
 export function convertToLangChainToolCalls(tool_calls: FloTorchToolCall[]): ToolCall[] {
@@ -156,8 +157,21 @@ export function convertToLangChainToolCalls(tool_calls: FloTorchToolCall[]): Too
             args: typeof tool_call.function.arguments === 'string' ? JSON.parse(tool_call.function.arguments) : tool_call.function.arguments,
             id: tool_call.id,
         }
-
-        return formattedToolCall
+        return formattedToolCall;
     });
-    return formattedToolCalls
+    return formattedToolCalls;
+}
+
+export function convertToFloTorchToolDefinitions(tool_definitions: ToolDefinition[]): FloTorchToolDefinition[] {
+    const formattedToolDefinitions: FloTorchToolDefinition[] = tool_definitions.map((tool_definition)=>{
+        const formattedToolDefinition: FloTorchToolDefinition = {
+            type: 'function',
+            name: tool_definition.function.name,
+            parameters: tool_definition.function.parameters,
+            description: tool_definition.function.description,
+        }
+        return formattedToolDefinition;
+    })
+
+    return formattedToolDefinitions;
 }

@@ -1,37 +1,37 @@
-import { 
-    ISupplyDataFunctions,
-    NodeConnectionTypes,
-    type INodeType,
-    type INodeTypeDescription,
-    type SupplyData,
+import {
+	ISupplyDataFunctions,
+	NodeConnectionTypes,
+	type INodeType,
+	type INodeTypeDescription,
+	type SupplyData,
 } from 'n8n-workflow'
 import { FloTorchLangChainLLM, FloTorchLangChainLLMParams } from '../../flotorch/langchain/llm'
 
 export class LmChatFloTorch implements INodeType {
-    description: INodeTypeDescription = {
+	description: INodeTypeDescription = {
 		displayName: 'FloTorch Chat Model',
 		name: 'lmChatFloTorch',
 		icon: 'file:../../icons/flotorch.svg',
 		group: ['transform'],
-        version: [1],
+		version: [1],
 		defaultVersion: 1,
 		description: 'Language Model FloTorch',
 		defaults: {
 			name: 'FloTorch Chat Model',
 		},
-        inputs: [],
-        outputs: [NodeConnectionTypes.AiLanguageModel],
-        outputNames: ['Model'],
-        credentials: [
+		inputs: [],
+		outputs: [NodeConnectionTypes.AiLanguageModel],
+		outputNames: ['Model'],
+		credentials: [
 			{
 				name: 'flotorchApi',
 				required: true,
 			},
 		],
-        properties: [
+		properties: [
 			{
 				displayName: 'Model',
-				name: 'model',
+				name: 'defaultModel',
 				type: 'options',
 				options: [
 					{ name: 'Claude Sonnet 4.5', value: 'flotorch/flotorch-claude-sonnet-4-5' },
@@ -41,16 +41,42 @@ export class LmChatFloTorch implements INodeType {
 					{ name: 'Amazon Nova Micro', value: 'flotorch/flotorch-aws-nova-micro' },
 				],
 				default: 'flotorch/flotorch-aws-nova-micro',
-				description: 'FloTorch Model',
-				hint: 'Select one of the options or enter a custom model ID like so: {{ flotorch/modelId }}.'
+				displayOptions: {
+					show: {
+						toggleCustomModel: [false] // Shows when the boolean is true
+					}
+				},
+				description: 'FloTorch model',
+				hint: 'Select one of the default FloTorch models'
+			},
+			{
+				displayName: 'Model',
+				name: 'customModel',
+				type: 'string',
+				default: 'flotorch/model',
+				displayOptions: {
+					show: {
+						toggleCustomModel: [true] // Shows when the boolean is true
+					}
+				},
+				description: 'FloTorch model',
+				hint: 'Enter the model ID (e.g., flotorch/model)'
+			},
+			{
+				displayName: 'Use Custom Model',
+				name: 'toggleCustomModel',
+				type: 'boolean',
+				default: false, // Initial state of the toggle
+				description: 'Use a custom configured FloTorch model',
 			},
 		],
-    }
+	}
 
-    async supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData> {
-		const modelName = this.getNodeParameter('model', 0) as string;
-        const credentials = await this.getCredentials('flotorchApi');
-        const apiKey = credentials.apiKey as string;
+	async supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData> {
+		const useCustomModel = this.getNodeParameter('toggleCustomModel', 0) as boolean;
+		const modelName = useCustomModel ? this.getNodeParameter('customModel', 0) as string : this.getNodeParameter('defaultModel', 0) as string;
+		const credentials = await this.getCredentials('flotorchApi');
+		const apiKey = credentials.apiKey as string;
 		const baseUrl = credentials.baseUrl as string;
 
 		const fields: FloTorchLangChainLLMParams = {
@@ -59,10 +85,10 @@ export class LmChatFloTorch implements INodeType {
 			baseUrl: baseUrl,
 		}
 
-        const model = new FloTorchLangChainLLM(fields);
+		const model = new FloTorchLangChainLLM(fields);
 
-        return {
-            response: model
-        }
-    }
+		return {
+			response: model
+		}
+	}
 }

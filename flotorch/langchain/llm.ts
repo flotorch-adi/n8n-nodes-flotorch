@@ -12,6 +12,7 @@ import { FloTorchLLM } from "../sdk/llm/llm";
 import {
     convertToChatResult,
     convertToFloTorchMessages,
+    convertToFloTorchToolDefinitions,
     convertToLangChainMessages,
 } from "../langchain/utils"
 
@@ -48,7 +49,9 @@ export class FloTorchLangChainLLM extends BaseChatModel {
 
         console.log("INPUT FLOTORCH MESSAGES",  JSON.stringify(inputFloTorchMessages, null, 2))
 
-        const outputFloTorchMessages = await this._llm.invoke(inputFloTorchMessages, this._tools);
+        const inputFloTorchToolDefinitions = convertToFloTorchToolDefinitions(this._tools ?? []);
+
+        const outputFloTorchMessages = await this._llm.invoke(inputFloTorchMessages, inputFloTorchToolDefinitions);
 
         console.log("OUTPUT FLOTORCH MESSAGES",  JSON.stringify(outputFloTorchMessages, null, 2))
 
