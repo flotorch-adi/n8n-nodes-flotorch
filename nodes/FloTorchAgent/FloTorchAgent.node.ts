@@ -17,13 +17,13 @@ import type {
 	INodeTypeDescription,
 	ISupplyDataFunctions,
 } from 'n8n-workflow';
-import { flotorchNodeRequestDefaults } from '../common/flotorchNodeDescription';
+import { flotorchNodeIcon, flotorchNodeRequestDefaults } from '../common/flotorchNodeDescription';
 
 export class FloTorchAgent implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'FloTorch Agent',
 		name: 'flotorchAgent',
-		icon: { light: 'file:../../icons/flotorch.svg', dark: 'file:../../icons/flotorch.svg' },
+		icon: flotorchNodeIcon,
 		group: ['input'],
 		version: 1,
 		description: 'AI agent provided by FloTorch',
