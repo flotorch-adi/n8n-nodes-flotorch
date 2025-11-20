@@ -28,6 +28,12 @@ export const FloTorchChatResponseSuccessSchema = z.object({
       index: z.number().optional(),
     })
   ),
+  model: z.string(),
+  usage: z.object({
+    completion_tokens: z.number(),
+    prompt_tokens: z.number(),
+    total_tokens: z.number(),
+  })
 });
 
 export const FloTorchChatResponseErrorSchema = z.object({
@@ -48,6 +54,7 @@ export interface FloTorchMessage {
   content?: string | undefined;
   tool_calls?: FloTorchToolCall[];
   tool_call_id?: string | undefined;
+  metadata?: Record<string, any>;
 };
 
 export interface FloTorchToolDefinition {
@@ -98,6 +105,15 @@ export async function chatCompletion(params: InvokeParams) {
 
   console.log("URL", url)
 
+  // handle empty descripion - Amazon models can't handle it
+  if (tools) {
+    for (let i = 0; i < tools.length; i++) {
+      if (!tools[i].function.description) {
+        tools[i].function.description = "none";
+      }
+    }
+  }
+  
   const body = {
     model: model,
     messages: messages,
@@ -152,6 +168,10 @@ export async function getFloTorchMessages(response: Response): Promise<FloTorchM
       role: choice.message.role,
       content: choice.message.content,
       tool_calls: choice.message.tool_calls,
+      metadata: {
+        model: data.model,
+        usage: data.usage,
+      }
     };
     return message;
   })

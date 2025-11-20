@@ -71,6 +71,7 @@ export function convertToFloTorchMessages(messages: BaseMessage[]): FloTorchMess
 export function convertToLangChainMessages(messages: FloTorchMessage[]): BaseMessage[] {
     return messages.map(msg => {
         const content = msg.content;
+        const metadata = msg.metadata;
         let output: BaseMessage = new AIMessage({ content: content });
 
         switch (msg.role) {
@@ -90,6 +91,14 @@ export function convertToLangChainMessages(messages: FloTorchMessage[]): BaseMes
                 const fields: AIMessageFields = {
                     content: content,
                     tool_calls: convertToLangChainToolCalls(msg.tool_calls || []),
+                    usage_metadata: {
+                        input_tokens: metadata?.usage.prompt_tokens,
+                        output_tokens: metadata?.usage.completion_tokens,
+                        total_tokens: metadata?.usage.total_tokens,
+                    },
+                    additional_kwargs: {
+                        model: metadata?.model as string,
+                    },
                 };
                 output = new AIMessage(fields);
                 break;
@@ -108,8 +117,17 @@ export function convertToLangChainMessages(messages: FloTorchMessage[]): BaseMes
                 output = new FunctionMessage(fields);
                 break;
             } default: {
-                const fields: BaseMessageFields = {
+                const fields: AIMessageFields = {
                     content: content,
+                    tool_calls: convertToLangChainToolCalls(msg.tool_calls || []),
+                    usage_metadata: {
+                        input_tokens: metadata?.usage.prompt_tokens,
+                        output_tokens: metadata?.usage.completion_tokens,
+                        total_tokens: metadata?.usage.total_tokens,
+                    },
+                    additional_kwargs: {
+                        model: metadata?.model as string,
+                    },
                 };
                 output = new AIMessage(fields);
                 break;

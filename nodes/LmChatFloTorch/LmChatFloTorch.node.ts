@@ -8,8 +8,7 @@ import {
 import { FloTorchLangChainLLM, FloTorchLangChainLLMParams } from '../../flotorch/langchain/llm'
 import { FloTorchLlmTracing } from './handler';
 import { flotorchNodeCredentials, flotorchNodeIcon } from '../common/flotorchNodeDescription';
-import { flotorchModelProperty } from '../common/flotorchModelProperty';
-import { flotorchModelSearch } from '../common/flotorchModelSearch';
+import { flotorchModelList, flotorchModelSearch } from '../common/flotorchModelList';
 
 export class LmChatFloTorch implements INodeType {
 	description: INodeTypeDescription = {
@@ -28,7 +27,7 @@ export class LmChatFloTorch implements INodeType {
 		outputNames: ['Model'],
 		credentials: [flotorchNodeCredentials],
 		properties: [
-			flotorchModelProperty
+			flotorchModelList
 		],
 	}
 

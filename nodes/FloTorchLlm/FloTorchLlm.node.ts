@@ -6,8 +6,7 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
-import { flotorchModelProperty } from '../common/flotorchModelProperty';
-import { flotorchModelSearch } from '../common/flotorchModelSearch';
+import { flotorchModelList, flotorchModelSearch } from '../common/flotorchModelList';
 import { flotorchNodeCredentials, flotorchNodeIcon, flotorchNodeRequestDefaults } from '../common/flotorchNodeDescription';
 
 export class FloTorchLlm implements INodeType {
@@ -26,7 +25,7 @@ export class FloTorchLlm implements INodeType {
 		credentials: [flotorchNodeCredentials],
 		requestDefaults: flotorchNodeRequestDefaults,
 		properties: [
-			flotorchModelProperty
+			flotorchModelList
 		],
 	};
 

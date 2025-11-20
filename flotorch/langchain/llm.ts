@@ -79,6 +79,9 @@ export class FloTorchLangChainLLM extends BaseChatModel {
 
         // FloTorch to LangChain
         const langchainMessages = convertToLangChainMessages(outputFloTorchMessages)
+
+        console.log("OUTPUT LANGCHAIN MESSAGES", JSON.stringify(langchainMessages, null, 2))
+
         const result = convertToChatResult(langchainMessages)
 
         for (const handler of handlers) {

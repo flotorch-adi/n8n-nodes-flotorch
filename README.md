@@ -22,7 +22,17 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations
 
-Chat - Connect a Chat Trigger to chat with your custom FloTorch models
+### FloTorch LLM
+
+- Stateless chat completion
+
+### FloTorch Agent
+
+- Conversation memory and tool use
+
+### FloTorch Chat Model
+
+- Connects to n8n's AI Agent
 
 ## Credentials
 

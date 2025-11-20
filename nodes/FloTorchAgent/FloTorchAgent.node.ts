@@ -17,7 +17,9 @@ import type {
 	INodeTypeDescription,
 	ISupplyDataFunctions,
 } from 'n8n-workflow';
-import { flotorchNodeIcon, flotorchNodeRequestDefaults } from '../common/flotorchNodeDescription';
+import { flotorchNodeCredentials, flotorchNodeIcon, flotorchNodeRequestDefaults } from '../common/flotorchNodeDescription';
+import { flotorchModelList, flotorchModelSearch } from '../common/flotorchModelList';
+import { FloTorchLangChainLLM, FloTorchLangChainLLMParams } from '../../flotorch/langchain/llm';
 
 export class FloTorchAgent implements INodeType {
 	description: INodeTypeDescription = {
@@ -33,11 +35,6 @@ export class FloTorchAgent implements INodeType {
 		inputs: [
 			NodeConnectionTypes.Main,
 			{
-				type: NodeConnectionTypes.AiLanguageModel,
-				displayName: 'Model',
-				maxConnections: 1,
-			},
-			{
 				type: NodeConnectionTypes.AiMemory,
 				displayName: 'Memory',
 				maxConnections: 1,
@@ -48,11 +45,17 @@ export class FloTorchAgent implements INodeType {
 			}
 		],
 		outputs: [NodeConnectionTypes.Main],
-		// credentials: [flotorchNodeCredentials],
+		credentials: [flotorchNodeCredentials],
 		requestDefaults: flotorchNodeRequestDefaults,
 		properties: [
-
+			flotorchModelList
 		],
+	};
+
+	methods = {
+		listSearch: {
+			flotorchModelSearch
+		},
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][] | EngineRequest> {
@@ -65,7 +68,7 @@ export const FloTorchNodeConnectionTypes = {
 	FloTorchModel: "flotorch_model",
 } as const;
 
-export type NodeConnectionTypeExtended =
+export type FloTorchNodeConnectionTypes =
 	typeof NodeConnectionTypes | "flotorch_model";
 
 // Simple agent executor for n8n using LangChain v1.0
@@ -145,7 +148,11 @@ export async function agentExecute(
 		}
 
 		returnData.push({
-			json: { output },
+			json: { 
+				output,
+				model: lastMessage.additional_kwargs.model as string,
+				usage: lastMessage.usage_metadata,
+			},
 			pairedItem: { item: itemIndex },
 		});
 	}
@@ -156,11 +163,26 @@ export async function agentExecute(
 // Helper to get chat model from n8n connection
 async function getChatModel(ctx: IExecuteFunctions): Promise<BaseChatModel | null> {
 	// n8n provides this through the AI connection system
-	const connectedModel = await ctx.getInputConnectionData(
-		NodeConnectionTypes.AiLanguageModel,
-		0,
-	);
-	return connectedModel as BaseChatModel;
+	// const connectedModel = await ctx.getInputConnectionData(
+	// 	NodeConnectionTypes.AiLanguageModel,
+	// 	0,
+	// );
+	// return connectedModel as BaseChatModel;
+
+	const model = ctx.getNodeParameter('model.value', 0) as string;
+	const credentials = await ctx.getCredentials('flotorchApi');
+	const apiKey = credentials.apiKey as string;
+	const baseUrl = credentials.baseUrl as string;
+
+	const fields: FloTorchLangChainLLMParams = {
+		model: model,
+		apiKey: apiKey,
+		baseUrl: baseUrl,
+	}
+
+	const chatModel = new FloTorchLangChainLLM(fields);
+
+	return chatModel
 }
 
 /**
