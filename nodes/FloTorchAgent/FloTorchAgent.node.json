@@ -1,0 +1,21 @@
+{
+	"node": "n8n-nodes-flotorch",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["AI"],
+	"subcategories": {
+		"AI" : ["Root Nodes"]
+	},
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://flotorch.ai"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://flotorch.ai"
+			}
+		]
+	}
+}

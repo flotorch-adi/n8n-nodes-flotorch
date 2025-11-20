@@ -1,76 +1,59 @@
-import { 
-    ISupplyDataFunctions,
-    NodeConnectionTypes,
-    type INodeType,
-    type INodeTypeDescription,
-    type SupplyData,
+import {
+	ISupplyDataFunctions,
+	NodeConnectionTypes,
+	type INodeType,
+	type INodeTypeDescription,
+	type SupplyData,
 } from 'n8n-workflow'
 import { FloTorchLangChainLLM, FloTorchLangChainLLMParams } from '../../flotorch/langchain/llm'
+import { FloTorchLlmTracing } from './handler';
+import { flotorchNodeCredentials, flotorchNodeIcon } from '../common/flotorchNodeDescription';
+import { flotorchModelList, flotorchModelSearch } from '../common/flotorchModelList';
 
 export class LmChatFloTorch implements INodeType {
-    description: INodeTypeDescription = {
+	description: INodeTypeDescription = {
 		displayName: 'FloTorch Chat Model',
-
 		name: 'lmChatFloTorch',
-		icon: 'file:../../icons/flotorch.svg',
+		icon: flotorchNodeIcon,
 		group: ['transform'],
-        version: [1],
+		version: [1],
 		defaultVersion: 1,
 		description: 'Language Model FloTorch',
 		defaults: {
 			name: 'FloTorch Chat Model',
 		},
-		// codex: {
-		// 	categories: ['AI'],
-		// 	subcategories: {
-		// 		AI: ['Language Models'],
-		// 		'Language Models': ['Chat Models (Recommended)'],
-		// 	},
-		// 	resources: {
-		// 		primaryDocumentation: [
-		// 			{
-		// 				url: 'https://flotorch.ai',
-		// 			},
-		// 		],
-		// 	},
-		// },
-        inputs: [],
-        outputs: [NodeConnectionTypes.AiLanguageModel],
-        outputNames: ['Model'],
-        credentials: [
-			{
-				name: 'flotorchApi',
-				required: true,
-			},
+		inputs: [],
+		outputs: [NodeConnectionTypes.AiLanguageModel],
+		outputNames: ['Model'],
+		credentials: [flotorchNodeCredentials],
+		properties: [
+			flotorchModelList
 		],
-        properties: [
-			{
-				displayName: 'Model',
-				name: 'model',
-				type: 'string',
-				default: '',
-				placeholder: 'Your FloTorch model',
-				description: 'FloTorch Model',
-			},
-		],
-    }
+	}
 
-    async supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData> {
-		const modelName = this.getNodeParameter('model', 0) as string;
-        const credentials = await this.getCredentials('flotorchApi');
-        const apiKey = credentials.apiKey as string;
+	methods = {
+		listSearch: {
+			flotorchModelSearch
+		},
+	};
+
+	async supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData> {
+		const model = this.getNodeParameter('model.value', 0) as string;
+		const credentials = await this.getCredentials('flotorchApi');
+		const apiKey = credentials.apiKey as string;
 		const baseUrl = credentials.baseUrl as string;
 
 		const fields: FloTorchLangChainLLMParams = {
-			model: modelName,
+			model: model,
 			apiKey: apiKey,
 			baseUrl: baseUrl,
+			callbacks: [new FloTorchLlmTracing(this)],
 		}
 
-        const model = new FloTorchLangChainLLM(fields);
+		const chatModel = new FloTorchLangChainLLM(fields);
 
-        return {
-            response: model
-        }
-    }
+		return {
+			response: chatModel
+		}
+	}
 }

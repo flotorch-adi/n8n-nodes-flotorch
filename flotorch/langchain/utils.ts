@@ -12,7 +12,8 @@ import {
     ToolMessageFields
 } from "@langchain/core/messages";
 import { ChatGeneration, ChatResult } from "@langchain/core/outputs";
-import { FloTorchMessage, FloTorchToolCall } from "../sdk/llm/utils";
+import { FloTorchMessage, FloTorchToolCall, FloTorchToolDefinition } from "../sdk/llm/utils";
+import { ToolDefinition } from "@langchain/core/language_models/base";
 
 
 export function convertToFloTorchMessages(messages: BaseMessage[]): FloTorchMessage[] {
@@ -30,7 +31,7 @@ export function convertToFloTorchMessages(messages: BaseMessage[]): FloTorchMess
 
         const messageType = msg._getType()
 
-        switch(messageType) {
+        switch (messageType) {
             case 'system': {
                 role = 'system';
                 break;
@@ -56,8 +57,8 @@ export function convertToFloTorchMessages(messages: BaseMessage[]): FloTorchMess
 
         const message: FloTorchMessage = {
             role: role,
-            content: typeof msg.content === "string" 
-                ? msg.content 
+            content: typeof msg.content === "string"
+                ? msg.content
                 : JSON.stringify(msg.content),
             tool_calls: tool_calls,
             tool_call_id: tool_call_id,
@@ -70,9 +71,10 @@ export function convertToFloTorchMessages(messages: BaseMessage[]): FloTorchMess
 export function convertToLangChainMessages(messages: FloTorchMessage[]): BaseMessage[] {
     return messages.map(msg => {
         const content = msg.content;
+        const metadata = msg.metadata;
         let output: BaseMessage = new AIMessage({ content: content });
 
-        switch(msg.role) {
+        switch (msg.role) {
             case 'system': {
                 const fields: BaseMessageFields = {
                     content: content,
@@ -89,6 +91,14 @@ export function convertToLangChainMessages(messages: FloTorchMessage[]): BaseMes
                 const fields: AIMessageFields = {
                     content: content,
                     tool_calls: convertToLangChainToolCalls(msg.tool_calls || []),
+                    usage_metadata: {
+                        input_tokens: metadata?.usage.prompt_tokens,
+                        output_tokens: metadata?.usage.completion_tokens,
+                        total_tokens: metadata?.usage.total_tokens,
+                    },
+                    additional_kwargs: {
+                        model: metadata?.model as string,
+                    },
                 };
                 output = new AIMessage(fields);
                 break;
@@ -107,14 +117,23 @@ export function convertToLangChainMessages(messages: FloTorchMessage[]): BaseMes
                 output = new FunctionMessage(fields);
                 break;
             } default: {
-                const fields: BaseMessageFields = {
+                const fields: AIMessageFields = {
                     content: content,
+                    tool_calls: convertToLangChainToolCalls(msg.tool_calls || []),
+                    usage_metadata: {
+                        input_tokens: metadata?.usage.prompt_tokens,
+                        output_tokens: metadata?.usage.completion_tokens,
+                        total_tokens: metadata?.usage.total_tokens,
+                    },
+                    additional_kwargs: {
+                        model: metadata?.model as string,
+                    },
                 };
                 output = new AIMessage(fields);
                 break;
             }
         }
-        
+
         return output;
     });
 }
@@ -125,16 +144,16 @@ export function convertToChatResult(messages: BaseMessage[]): ChatResult {
             text: '',
             message: msg
         }
-        return generation
+        return generation;
     });
     const result: ChatResult = {
         generations: generations
     };
-    return result
+    return result;
 }
 
 export function convertToFloTorchToolCalls(tool_calls: ToolCall[]): FloTorchToolCall[] {
-    const formattedToolCalls: FloTorchToolCall[] = tool_calls.map((tool_call)=>{
+    const formattedToolCalls: FloTorchToolCall[] = tool_calls.map((tool_call) => {
         const formattedToolCall: FloTorchToolCall = {
             type: 'function',
             function: {
@@ -144,20 +163,35 @@ export function convertToFloTorchToolCalls(tool_calls: ToolCall[]): FloTorchTool
             id: tool_call.id || "",
         }
 
-        return formattedToolCall
+        return formattedToolCall;
     });
-    return formattedToolCalls
+    return formattedToolCalls;
 }
 
 export function convertToLangChainToolCalls(tool_calls: FloTorchToolCall[]): ToolCall[] {
-    const formattedToolCalls: ToolCall[] = tool_calls.map((tool_call)=>{
+    const formattedToolCalls: ToolCall[] = tool_calls.map((tool_call) => {
         const formattedToolCall: ToolCall = {
             name: tool_call.function.name,
             args: typeof tool_call.function.arguments === 'string' ? JSON.parse(tool_call.function.arguments) : tool_call.function.arguments,
             id: tool_call.id,
         }
-
-        return formattedToolCall
+        return formattedToolCall;
     });
-    return formattedToolCalls
+    return formattedToolCalls;
+}
+
+export function convertToFloTorchToolDefinitions(tool_definitions: ToolDefinition[]): FloTorchToolDefinition[] {
+    const formattedToolDefinitions: FloTorchToolDefinition[] = tool_definitions.map((tool_definition) => {
+        const formattedToolDefinition: FloTorchToolDefinition = {
+            type: 'function',
+            function: {
+                name: tool_definition.function.name,
+                parameters: tool_definition.function.parameters,
+                description: tool_definition.function.description,
+            }
+        }
+        return formattedToolDefinition;
+    })
+
+    return formattedToolDefinitions;
 }

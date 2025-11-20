@@ -1,15 +1,15 @@
 {
 	"name": "n8n-nodes-flotorch",
 	"version": "0.1.0",
-	"description": "",
+	"description": "FloTorch n8n nodes",
 	"license": "MIT",
-	"homepage": "",
+	"homepage": "https://flotorch.ai",
 	"keywords": [
 		"n8n-community-node-package"
 	],
 	"author": {
-		"name": "",
-		"email": ""
+		"name": "Adi Budithi",
+		"email": "adi@flotorch.ai"
 	},
 	"repository": {
 		"type": "git",
@@ -34,7 +34,8 @@
 			"dist/credentials/FloTorchApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/FloTorch/FloTorch.node.js",
+			"dist/nodes/FloTorchLlm/FloTorchLlm.node.js",
+			"dist/nodes/FloTorchAgent/FloTorchAgent.node.js",
 			"dist/nodes/LmChatFloTorch/LmChatFloTorch.node.js"
 		]
 	},
@@ -45,15 +46,20 @@
 		"prettier": "3.6.2",
 		"release-it": "^19.0.4",
 		"ts-node": "^10.9.2",
-		"typescript": "^5.9.2"
+		"typescript": "^5.9.2",
+		"@langchain/core": "^1.0.0",
+		"@langchain/openai": "^1.0.0",
+		"langchain": "^1.0.0"
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"
 	},
 	"dependencies": {
-		"langchain": "^1.0.2",
-		"@langchain/core": "^1.0.2",
+		"@flotorch/langchain": "file:../flotorch/packages/langchain",
+		"@flotorch/sdk": "file:../flotorch/packages/sdk",
+		"@langchain/core": "^1.0.0",
 		"@langchain/openai": "^1.0.0",
+		"langchain": "^1.0.0",
 		"zod": "^4.1.12"
 	}
 }
