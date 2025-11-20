@@ -1,4 +1,5 @@
 import {
+	ILoadOptionsFunctions,
 	ISupplyDataFunctions,
 	NodeConnectionTypes,
 	type INodeType,
@@ -6,6 +7,7 @@ import {
 	type SupplyData,
 } from 'n8n-workflow'
 import { FloTorchLangChainLLM, FloTorchLangChainLLMParams } from '../../flotorch/langchain/llm'
+import { FloTorchLlmTracing } from './handler';
 
 export class LmChatFloTorch implements INodeType {
 	description: INodeTypeDescription = {
@@ -69,8 +71,82 @@ export class LmChatFloTorch implements INodeType {
 				default: false, // Initial state of the toggle
 				description: 'Use a custom configured FloTorch model',
 			},
+			{
+				displayName: 'Test Model',
+				name: 'testmodel',
+				type: 'resourceLocator',
+				default: { mode: 'list', value: 'flotorch/flotorch-aws-nova-micro' , cachedResultName: 'Amazon Nova Micro'},
+				required: true,
+				description:
+					'The model which will generate the completion. <a href="https:flotorch.ai">Learn more</a>.',
+				modes: [
+					{
+						displayName: 'From List',
+						name: 'list',
+						type: 'list',
+						typeOptions: {
+							searchListMethod: 'flotorchModelSearch',
+							searchable: true,
+						},
+					},
+					{
+						displayName: 'ID',
+						name: 'id',
+						type: 'string',
+					},
+				],
+				routing: {
+					send: {
+						type: 'body',
+						property: 'model',
+						value: '={{$parameter.model.value}}',
+					},
+				},
+			},
 		],
 	}
+
+	methods = {
+		listSearch: {
+			async flotorchModelSearch(this: ILoadOptionsFunctions) {
+				// const results = [];
+
+				// const credentials = await this.getCredentials('flotorchApi');
+				// const apiKey = credentials.apiKey as string;
+				// const baseUrl = credentials.baseUrl as string;
+
+				// let uri = 'https://api.openai.com/v1/models';
+
+				// if (baseUrl) {
+				// 	uri = `${baseUrl}/models`;
+				// }
+
+				// const { data } = (await this.helpers.requestWithAuthentication.call(this, 'flotorchApi', {
+				// 	method: 'GET',
+				// 	uri,
+				// 	json: true,
+				// })) as { data: Array<{ owned_by: string; id: string }> };
+
+				// for (const model of data) {
+				// 	if (!baseUrl && !model.owned_by?.startsWith('system')) continue;
+				// 	results.push({
+				// 		name: model.id,
+				// 		value: model.id,
+				// 	});
+				// }
+
+				const results = [
+					{ name: 'Claude Sonnet 4.5', value: 'flotorch/flotorch-claude-sonnet-4-5' },
+					{ name: 'Claude Haiku 4.5', value: 'flotorch/flotorch-claude-haiku-4-5' },
+					{ name: 'Amazon Nova Pro', value: 'flotorch/flotorch-aws-nova-pro' },
+					{ name: 'Amazon Nova Lite', value: 'flotorch/flotorch-aws-nova-lite' },
+					{ name: 'Amazon Nova Micro', value: 'flotorch/flotorch-aws-nova-micro' },
+				]
+
+				return { results };
+			},
+		},
+	};
 
 	async supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData> {
 		const useCustomModel = this.getNodeParameter('toggleCustomModel', 0) as boolean;
@@ -83,6 +159,7 @@ export class LmChatFloTorch implements INodeType {
 			model: modelName,
 			apiKey: apiKey,
 			baseUrl: baseUrl,
+			callbacks: [new FloTorchLlmTracing(this)],
 		}
 
 		const model = new FloTorchLangChainLLM(fields);

@@ -1,0 +1,237 @@
+import type { BaseChatModel } from '@langchain/core/language_models/chat_models';
+import { BaseMemory } from '@langchain/core/memory';
+import { BaseMessage, HumanMessage, trimMessages } from '@langchain/core/messages';
+import type { StructuredToolInterface } from '@langchain/core/tools';
+import { createAgent } from 'langchain';
+import {
+	NodeConnectionTypes,
+	// nodeNameToToolName,
+	NodeOperationError,
+} from 'n8n-workflow';
+import type {
+	EngineRequest,
+	IExecuteFunctions,
+	INodeExecutionData,
+	INodeType,
+	INodeTypeDescription,
+	ISupplyDataFunctions,
+} from 'n8n-workflow';
+
+export class FloTorchAgent implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: 'FloTorch Agent',
+		name: 'flotorchAgent',
+		icon: { light: 'file:../../icons/flotorch.svg', dark: 'file:../../icons/flotorch.svg' },
+		group: ['input'],
+		version: 1,
+		description: 'AI agent provided by FloTorch',
+		defaults: {
+			name: 'FloTorch Agent',
+		},
+		inputs: [
+			NodeConnectionTypes.Main,
+			{
+				type: NodeConnectionTypes.AiLanguageModel,
+				displayName: 'Model',
+				maxConnections: 1,
+			},
+			{
+				type: NodeConnectionTypes.AiMemory,
+				displayName: 'Memory',
+				maxConnections: 1,
+			},
+			{
+				type: NodeConnectionTypes.AiTool,
+				displayName: 'Tools',
+			}
+		],
+		outputs: [NodeConnectionTypes.Main],
+		// credentials: [
+		// 	{
+		// 		name: 'flotorchApi',
+		// 		required: true,
+		// 	},
+		// ],
+		requestDefaults: {
+			ignoreHttpStatusErrors: true,
+			baseURL:
+				'={{ $credentials.baseUrl?.split("/").slice(0,-1).join("/") ?? "https://gateway.flotorch.cloud" }}',
+		},
+		properties: [
+
+		],
+	};
+
+	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][] | EngineRequest> {
+		return simpleAgentExecute.call(this);
+	}
+}
+
+export const FloTorchNodeConnectionTypes = {
+  ...NodeConnectionTypes,
+  FloTorchModel: "flotorch_model",
+} as const;
+
+export type NodeConnectionTypeExtended =
+  typeof NodeConnectionTypes | "flotorch_model";
+
+// Simple agent executor for n8n using LangChain v1.0
+export async function simpleAgentExecute(
+	this: IExecuteFunctions,
+): Promise<INodeExecutionData[][] | EngineRequest> {
+
+	const items = this.getInputData();
+	const returnData: INodeExecutionData[] = [];
+
+	// Get the chat model from n8n connection
+	const model = await getChatModel(this);
+	if (!model) {
+		throw new NodeOperationError(this.getNode(), 'Please connect a chat model');
+	}
+
+	const memory = await getOptionalMemory(this);
+
+	// Get tools from n8n connections
+	const tools = await getTools(this);
+
+	// Create the agent using v1.0 API
+	const agent = createAgent({
+		model,
+		tools,
+	});
+
+	let chatHistory: BaseMessage[] | undefined = undefined;
+	if (memory) {
+		chatHistory = await loadChatHistory(memory);
+	}
+
+	console.log('CHAT HISTORY', chatHistory)
+
+	// Process each input item
+	for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+		// Get user input from the node parameter
+		const item = items[itemIndex];
+		// const input_role = 'user';
+		const input_content = item.json['chatInput'] as string ?? 'chatInput not found';
+		const input_messages: BaseMessage[] = chatHistory ? [...chatHistory] : [];
+		input_messages.push(new HumanMessage(input_content))
+
+		// Invoke the agent
+		const result = await agent.invoke({
+			messages: input_messages
+		});
+
+		// Check if the agent made tool calls
+		const lastMessage = result.messages[result.messages.length - 1] as any;
+
+		if (lastMessage?.tool_calls && Array.isArray(lastMessage.tool_calls) && lastMessage.tool_calls.length > 0) {
+			// Agent wants to use tools - return EngineRequest
+			const actions = lastMessage.tool_calls.map((toolCall: {
+				name: string;
+				args: Record<string, unknown>;
+				id: string;
+			}) => ({
+				actionType: 'ExecutionNodeAction' as const,
+				nodeName: getToolNodeName(toolCall.name, tools),
+				input: toolCall.args,
+				type: NodeConnectionTypes.AiTool,
+				id: toolCall.id,
+				metadata: { itemIndex },
+			}));
+
+			return {
+				actions,
+				metadata: { itemIndex },
+			};
+		}
+
+		// Agent finished - extract the final message content
+		const output = lastMessage.content || '';
+
+		if (memory) {
+			await memory.saveContext(
+				{ input: input_content },
+				{ output },
+			);
+		}
+
+		returnData.push({
+			json: { output },
+			pairedItem: { item: itemIndex },
+		});
+	}
+
+	return [returnData];
+}
+
+// Helper to get chat model from n8n connection
+async function getChatModel(ctx: IExecuteFunctions): Promise<BaseChatModel | null> {
+	// n8n provides this through the AI connection system
+	const connectedModel = await ctx.getInputConnectionData(
+		NodeConnectionTypes.AiLanguageModel,
+		0,
+	);
+	return connectedModel as BaseChatModel;
+}
+
+/**
+ * Retrieves the memory instance from the input connection if it is connected
+ *
+ * @param ctx - The execution context
+ * @returns The connected memory (if any)
+ */
+export async function getOptionalMemory(
+	ctx: IExecuteFunctions | ISupplyDataFunctions,
+): Promise<BaseMemory | undefined> {
+	return (await ctx.getInputConnectionData(NodeConnectionTypes.AiMemory, 0)) as
+		| BaseMemory
+		| undefined;
+}
+
+async function loadChatHistory(
+	memory: BaseMemory,
+	model?: BaseChatModel,
+	maxTokensFromMemory?: number,
+): Promise<BaseMessage[]> {
+	const memoryVariables = await memory.loadMemoryVariables({});
+	let chatHistory = memoryVariables['chat_history'] as BaseMessage[];
+
+	if (maxTokensFromMemory && model) {
+		chatHistory = await trimMessages(chatHistory, {
+			strategy: 'last',
+			maxTokens: maxTokensFromMemory,
+			tokenCounter: model,
+			includeSystem: true,
+			startOn: 'human',
+			allowPartial: true,
+		});
+	}
+
+	return chatHistory;
+}
+
+// Helper to get tools from n8n connections
+async function getTools(ctx: IExecuteFunctions): Promise<StructuredToolInterface[]> {
+	const tools: StructuredToolInterface[] = [];
+	const connectedTools = await ctx.getInputConnectionData(
+		NodeConnectionTypes.AiTool,
+		0,
+	);
+
+	if (Array.isArray(connectedTools)) {
+		tools.push(...connectedTools);
+	}
+
+	return tools;
+}
+
+// Helper to find tool's source node name
+function getToolNodeName(
+	toolName: string,
+	tools: StructuredToolInterface[],
+): string {
+	const tool = tools.find((t) => t.name === toolName);
+	// Access metadata with type safety
+	const metadata = (tool as any)?.metadata;
+	return metadata?.sourceNodeName || toolName;
+}

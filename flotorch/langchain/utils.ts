@@ -31,7 +31,7 @@ export function convertToFloTorchMessages(messages: BaseMessage[]): FloTorchMess
 
         const messageType = msg._getType()
 
-        switch(messageType) {
+        switch (messageType) {
             case 'system': {
                 role = 'system';
                 break;
@@ -57,8 +57,8 @@ export function convertToFloTorchMessages(messages: BaseMessage[]): FloTorchMess
 
         const message: FloTorchMessage = {
             role: role,
-            content: typeof msg.content === "string" 
-                ? msg.content 
+            content: typeof msg.content === "string"
+                ? msg.content
                 : JSON.stringify(msg.content),
             tool_calls: tool_calls,
             tool_call_id: tool_call_id,
@@ -73,7 +73,7 @@ export function convertToLangChainMessages(messages: FloTorchMessage[]): BaseMes
         const content = msg.content;
         let output: BaseMessage = new AIMessage({ content: content });
 
-        switch(msg.role) {
+        switch (msg.role) {
             case 'system': {
                 const fields: BaseMessageFields = {
                     content: content,
@@ -115,7 +115,7 @@ export function convertToLangChainMessages(messages: FloTorchMessage[]): BaseMes
                 break;
             }
         }
-        
+
         return output;
     });
 }
@@ -135,7 +135,7 @@ export function convertToChatResult(messages: BaseMessage[]): ChatResult {
 }
 
 export function convertToFloTorchToolCalls(tool_calls: ToolCall[]): FloTorchToolCall[] {
-    const formattedToolCalls: FloTorchToolCall[] = tool_calls.map((tool_call)=>{
+    const formattedToolCalls: FloTorchToolCall[] = tool_calls.map((tool_call) => {
         const formattedToolCall: FloTorchToolCall = {
             type: 'function',
             function: {
@@ -151,7 +151,7 @@ export function convertToFloTorchToolCalls(tool_calls: ToolCall[]): FloTorchTool
 }
 
 export function convertToLangChainToolCalls(tool_calls: FloTorchToolCall[]): ToolCall[] {
-    const formattedToolCalls: ToolCall[] = tool_calls.map((tool_call)=>{
+    const formattedToolCalls: ToolCall[] = tool_calls.map((tool_call) => {
         const formattedToolCall: ToolCall = {
             name: tool_call.function.name,
             args: typeof tool_call.function.arguments === 'string' ? JSON.parse(tool_call.function.arguments) : tool_call.function.arguments,
@@ -163,12 +163,14 @@ export function convertToLangChainToolCalls(tool_calls: FloTorchToolCall[]): Too
 }
 
 export function convertToFloTorchToolDefinitions(tool_definitions: ToolDefinition[]): FloTorchToolDefinition[] {
-    const formattedToolDefinitions: FloTorchToolDefinition[] = tool_definitions.map((tool_definition)=>{
+    const formattedToolDefinitions: FloTorchToolDefinition[] = tool_definitions.map((tool_definition) => {
         const formattedToolDefinition: FloTorchToolDefinition = {
             type: 'function',
-            name: tool_definition.function.name,
-            parameters: tool_definition.function.parameters,
-            description: tool_definition.function.description,
+            function: {
+                name: tool_definition.function.name,
+                parameters: tool_definition.function.parameters,
+                description: tool_definition.function.description,
+            }
         }
         return formattedToolDefinition;
     })
