@@ -1,6 +1,6 @@
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { BaseMemory } from '@langchain/core/memory';
-import { BaseMessage, HumanMessage, trimMessages } from '@langchain/core/messages';
+import { BaseMessage, HumanMessage, AIMessage, trimMessages, ToolCall } from '@langchain/core/messages';
 import type { StructuredToolInterface } from '@langchain/core/tools';
 import { createAgent } from 'langchain';
 import {
@@ -10,12 +10,14 @@ import {
 } from 'n8n-workflow';
 import type {
 	EngineRequest,
+	IDataObject,
 	IExecuteFunctions,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
 	ISupplyDataFunctions,
 } from 'n8n-workflow';
+import { flotorchNodeRequestDefaults } from '../common/flotorchNodeDescription';
 
 export class FloTorchAgent implements INodeType {
 	description: INodeTypeDescription = {
@@ -46,64 +48,47 @@ export class FloTorchAgent implements INodeType {
 			}
 		],
 		outputs: [NodeConnectionTypes.Main],
-		// credentials: [
-		// 	{
-		// 		name: 'flotorchApi',
-		// 		required: true,
-		// 	},
-		// ],
-		requestDefaults: {
-			ignoreHttpStatusErrors: true,
-			baseURL:
-				'={{ $credentials.baseUrl?.split("/").slice(0,-1).join("/") ?? "https://gateway.flotorch.cloud" }}',
-		},
+		// credentials: [flotorchNodeCredentials],
+		requestDefaults: flotorchNodeRequestDefaults,
 		properties: [
 
 		],
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][] | EngineRequest> {
-		return simpleAgentExecute.call(this);
+		return agentExecute.call(this);
 	}
 }
 
 export const FloTorchNodeConnectionTypes = {
-  ...NodeConnectionTypes,
-  FloTorchModel: "flotorch_model",
+	...NodeConnectionTypes,
+	FloTorchModel: "flotorch_model",
 } as const;
 
 export type NodeConnectionTypeExtended =
-  typeof NodeConnectionTypes | "flotorch_model";
+	typeof NodeConnectionTypes | "flotorch_model";
 
 // Simple agent executor for n8n using LangChain v1.0
-export async function simpleAgentExecute(
+export async function agentExecute(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[][] | EngineRequest> {
 
 	const items = this.getInputData();
 	const returnData: INodeExecutionData[] = [];
 
-	// Get the chat model from n8n connection
 	const model = await getChatModel(this);
 	if (!model) {
 		throw new NodeOperationError(this.getNode(), 'Please connect a chat model');
 	}
 
-	const memory = await getOptionalMemory(this);
-
-	// Get tools from n8n connections
+	const memory = await getMemory(this);
 	const tools = await getTools(this);
-
-	// Create the agent using v1.0 API
 	const agent = createAgent({
 		model,
 		tools,
 	});
 
-	let chatHistory: BaseMessage[] | undefined = undefined;
-	if (memory) {
-		chatHistory = await loadChatHistory(memory);
-	}
+	let chatHistory: BaseMessage[] | undefined = memory ? await loadChatHistory(memory) : undefined;
 
 	console.log('CHAT HISTORY', chatHistory)
 
@@ -111,33 +96,37 @@ export async function simpleAgentExecute(
 	for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 		// Get user input from the node parameter
 		const item = items[itemIndex];
-		// const input_role = 'user';
-		const input_content = item.json['chatInput'] as string ?? 'chatInput not found';
+		const input_content = item.json['chatInput'] as string;
+
+		if (!input_content) {
+			throw new NodeOperationError(this.getNode(), 'chatInput not found', {
+				description: 'Input from Chat Trigger not found',
+				itemIndex: itemIndex
+			});
+		}
+
 		const input_messages: BaseMessage[] = chatHistory ? [...chatHistory] : [];
 		input_messages.push(new HumanMessage(input_content))
 
-		// Invoke the agent
 		const result = await agent.invoke({
 			messages: input_messages
 		});
 
 		// Check if the agent made tool calls
-		const lastMessage = result.messages[result.messages.length - 1] as any;
+		const lastMessage = result.messages[result.messages.length - 1] as AIMessage;
 
 		if (lastMessage?.tool_calls && Array.isArray(lastMessage.tool_calls) && lastMessage.tool_calls.length > 0) {
 			// Agent wants to use tools - return EngineRequest
-			const actions = lastMessage.tool_calls.map((toolCall: {
-				name: string;
-				args: Record<string, unknown>;
-				id: string;
-			}) => ({
-				actionType: 'ExecutionNodeAction' as const,
-				nodeName: getToolNodeName(toolCall.name, tools),
-				input: toolCall.args,
-				type: NodeConnectionTypes.AiTool,
-				id: toolCall.id,
-				metadata: { itemIndex },
-			}));
+			const actions = lastMessage.tool_calls.map(
+				(toolCall: ToolCall<string, Record<string, unknown>>) => ({
+					actionType: 'ExecutionNodeAction' as const,
+					nodeName: getToolNodeName(toolCall.name, tools),
+					input: toolCall.args as IDataObject,
+					type: NodeConnectionTypes.AiTool,
+					id: toolCall.id ?? crypto.randomUUID(),
+					metadata: { itemIndex },
+				}),
+			);
 
 			return {
 				actions,
@@ -180,7 +169,7 @@ async function getChatModel(ctx: IExecuteFunctions): Promise<BaseChatModel | nul
  * @param ctx - The execution context
  * @returns The connected memory (if any)
  */
-export async function getOptionalMemory(
+export async function getMemory(
 	ctx: IExecuteFunctions | ISupplyDataFunctions,
 ): Promise<BaseMemory | undefined> {
 	return (await ctx.getInputConnectionData(NodeConnectionTypes.AiMemory, 0)) as

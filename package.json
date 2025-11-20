@@ -18,7 +18,6 @@
 	"scripts": {
 		"build": "n8n-node build",
 		"build:watch": "tsc --watch",
-		"build:new": "TS_NODE_TRANSPILE_ONLY=true n8n-node build",
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
@@ -35,8 +34,8 @@
 			"dist/credentials/FloTorchApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/FloTorch/FloTorch.node.js",
-			"dist/nodes/FloTorch/FloTorchAgentV2.node.js",
+			"dist/nodes/FloTorchLlm/FloTorchLlm.node.js",
+			"dist/nodes/FloTorchAgent/FloTorchAgent.node.js",
 			"dist/nodes/LmChatFloTorch/LmChatFloTorch.node.js"
 		]
 	},
@@ -49,7 +48,8 @@
 		"ts-node": "^10.9.2",
 		"typescript": "^5.9.2",
 		"@langchain/core": "^1.0.0",
-		"@langchain/openai": "^1.0.0"
+		"@langchain/openai": "^1.0.0",
+		"langchain": "^1.0.0"
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"

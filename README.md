@@ -79,8 +79,8 @@ n8n 1.117.3
 7. Navigate to ~/.n8n/custom (in the root directory of your machine). Create it if needed.
 
     ```bash
+    mkdir ~/.n8n/custom # if needed
     cd ~/.n8n/custom
-    mkdir ~/.n8n/custom
     ```
 
 8. Add FloTorch node
@@ -94,16 +94,6 @@ n8n 1.117.3
     ```bash
     n8n start
     ```
-
-10. Open n8n in your browser. Create a workflow.
-
-11. Search for 'FloTorch' in the nodes panel. Add a FloTorch node to your workflow.
-
-12. Create a set of FloTorch credentials.
-
-13. Connect a Chat Trigger to the FloTorch node.
-
-14. Chat away!
 
 ## Resources
 
