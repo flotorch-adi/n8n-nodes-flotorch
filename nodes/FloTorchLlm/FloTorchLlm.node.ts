@@ -41,6 +41,7 @@ export class FloTorchLlm implements INodeType {
 		const credentials = await this.getCredentials('flotorchApi');
 		const baseUrl = credentials.baseUrl;
 		const url = baseUrl + "/openai/v1/chat/completions";
+		const workspaceId = credentials.workspaceId;
 
 		const output: INodeExecutionData[] = [];
 
@@ -79,13 +80,60 @@ export class FloTorchLlm implements INodeType {
 				const output_content = response.choices[0].message.content;
 				const output_usage = response.usage;
 				const output_model = response.model;
+				const requestUid = response.metadata.requestUid;
+				const consoleLogLink = `https://console.flotorch.cloud/workspaces/${workspaceId}/logs?requestId=${requestUid}`;
+				const html = `<a href="${consoleLogLink}" target="_blank">Open FloTorch logs</a>`;
+
+				// if (workspaceId) {
+				// 	const result = this.helpers.constructExecutionMetaData(
+				// 		this.helpers.returnJsonArray({ html }),
+				// 		{
+				// 			itemData: { item: itemIndex },
+				// 		},
+				// 	);
+
+				// 	output.push(...result);
+				// } else {
+				// 	const binaryData = await this.helpers.prepareBinaryData(
+				// 		Buffer.from(html, 'utf-8'),
+				// 		'output.html',
+				// 		'text/html'
+				// 	);
+
+				// 	output.push({
+				// 		json: {
+				// 			output: output_content, // this field is what the chat inferface looks for
+				// 			model: output_model,
+				// 			usage: output_usage,
+				// 			requestID: requestUid,
+				// 			trace: consoleLogLink,
+				// 			html: workspaceId ? html : 'Please fill workspace ID in FloTorch credentials'
+				// 		},
+				// 		binary: {
+				// 			data: binaryData,
+				// 		}
+				// 	});
+				// }
+
+				const binaryData = await this.helpers.prepareBinaryData(
+					Buffer.from(html, 'utf-8'),
+					'output.html',
+					'text/html'
+				);
 
 				output.push({
 					json: {
 						output: output_content, // this field is what the chat inferface looks for
 						model: output_model,
 						usage: output_usage,
-					}
+						requestID: requestUid,
+						trace: consoleLogLink,
+						html: workspaceId ? html : 'Please fill workspace ID in FloTorch credentials'
+					},
+					binary: {
+						data: binaryData,
+					},
+					html: html
 				});
 			} catch (error) {
 				throw new NodeOperationError(this.getNode(), 'Failed to process input item.', {

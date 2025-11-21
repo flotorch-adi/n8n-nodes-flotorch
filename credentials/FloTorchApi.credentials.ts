@@ -35,35 +35,12 @@ export class FloTorchApi implements ICredentialType {
 			description: 'Set the base URL for your FloTorch account',
 		},
 		{
-			displayName: 'Add Custom Header',
-			name: 'header',
-			type: 'boolean',
-			default: false,
-		},
-		{
-			displayName: 'Header Name',
-			name: 'headerName',
+			displayName: 'Workspace ID',
+			name: 'workspaceId',
 			type: 'string',
-			displayOptions: {
-				show: {
-					header: [true],
-				},
-			},
+			required: false,
 			default: '',
-		},
-		{
-			displayName: 'Header Value',
-			name: 'headerValue',
-			type: 'string',
-			typeOptions: {
-				password: true,
-			},
-			displayOptions: {
-				show: {
-					header: [true],
-				},
-			},
-			default: '',
+			description: 'Add your FloTorch workspace ID for tracing',
 		},
 	];
 
