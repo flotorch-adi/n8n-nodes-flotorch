@@ -19,7 +19,6 @@ export class FloTorchLlmTracing extends BaseCallbackHandler {
         prompts: string[],
         runId: string,
     ) {
-        console.log("--- LLM START ---")
         this.executionFunctions.addInputData(
             this.connectionType,
             [[{ json: { prompts } }]],
@@ -30,7 +29,6 @@ export class FloTorchLlmTracing extends BaseCallbackHandler {
         output: LLMResult,
         runId: string,
     ) {
-        console.log("--- LLM END ---")
         this.executionFunctions.addOutputData(
             this.connectionType,
             0,
@@ -42,7 +40,6 @@ export class FloTorchLlmTracing extends BaseCallbackHandler {
         error: any,
         runId: string,
     ) {
-        console.log("--- LLM ERROR ---")
         this.executionFunctions.addOutputData(
             this.connectionType,
             0,

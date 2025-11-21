@@ -93,8 +93,6 @@ export async function agentExecute(
 
 	let chatHistory: BaseMessage[] | undefined = memory ? await loadChatHistory(memory) : undefined;
 
-	console.log('CHAT HISTORY', chatHistory)
-
 	// Process each input item
 	for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 		// Get user input from the node parameter
