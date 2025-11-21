@@ -62,25 +62,15 @@ export class FloTorchLangChainLLM extends BaseChatModel {
             handler.handleLLMStart;
         }
 
-        console.log("INPUT LANGCHAIN MESSAGES", JSON.stringify(messages, null, 2))
-
         // LangChain to FloTorch
         const inputFloTorchMessages = convertToFloTorchMessages(messages);
 
-        console.log("INPUT FLOTORCH MESSAGES", JSON.stringify(inputFloTorchMessages, null, 2))
-
         const inputFloTorchToolDefinitions = convertToFloTorchToolDefinitions(this._tools ?? []);
-
-        console.log("INPUT FLOTORCH TOOLS", JSON.stringify(inputFloTorchToolDefinitions, null, 2))
 
         const outputFloTorchMessages = await this._llm.invoke(inputFloTorchMessages, inputFloTorchToolDefinitions);
 
-        console.log("OUTPUT FLOTORCH MESSAGES", JSON.stringify(outputFloTorchMessages, null, 2))
-
         // FloTorch to LangChain
         const langchainMessages = convertToLangChainMessages(outputFloTorchMessages)
-
-        console.log("OUTPUT LANGCHAIN MESSAGES", JSON.stringify(langchainMessages, null, 2))
 
         const result = convertToChatResult(langchainMessages)
 

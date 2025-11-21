@@ -103,8 +103,6 @@ export async function chatCompletion(params: InvokeParams) {
 
   const url = baseUrl + FloTorchEndpoints.COMPLETIONS;
 
-  console.log("URL", url)
-
   // handle empty descripion - Amazon models can't handle it
   if (tools) {
     for (let i = 0; i < tools.length; i++) {
@@ -123,8 +121,6 @@ export async function chatCompletion(params: InvokeParams) {
     ...additionalParams,
   };
 
-  console.log("FLOTORCH REQUEST BODY", JSON.stringify(body, null, 2))
-
   const payload = {
     method: 'POST',
     headers: {
@@ -136,15 +132,11 @@ export async function chatCompletion(params: InvokeParams) {
 
   const response = await fetch(url, payload);
 
-  // console.log("RESPONSE", response)
-
   return response;
 }
 
 export async function getFloTorchMessages(response: Response): Promise<FloTorchMessage[]> {
   const json = await response.json();
-
-  console.log("FLOTORCH RESPONSE JSON", JSON.stringify(json, null, 2))
 
   const parsed = FloTorchChatResponseSchema.safeParse(json);
 
@@ -160,8 +152,6 @@ export async function getFloTorchMessages(response: Response): Promise<FloTorchM
   if (isFloTorchError(data)) {
     throw new Error(data.error.message);
   }
-
-  console.log("EXTRACTED ZOD DATA", JSON.stringify(data, null, 2))
 
   const messages = data.choices.map((choice) => {
     const message: FloTorchMessage = {

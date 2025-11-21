@@ -17,13 +17,6 @@ import { ToolDefinition } from "@langchain/core/language_models/base";
 
 
 export function convertToFloTorchMessages(messages: BaseMessage[]): FloTorchMessage[] {
-    console.log('INPUT MESSAGES:', messages.map(m => ({
-        type: m.constructor.name,
-        _getType: m._getType(),
-        content: m.content,
-        tool_calls: m._getType() == 'ai' ? (m as AIMessage).tool_calls : undefined
-    })));
-
     return messages.map(msg => {
         let role: string;
         let tool_calls: FloTorchToolCall[] | undefined;

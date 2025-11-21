@@ -26,13 +26,8 @@ export class FloTorchLLM {
                 tools: tools,
                 ...options
             };
-
             const response = await chatCompletion(params);
-            // console.log("FLOTORCHLLM RESPONSE", response)
-
             const output = await getFloTorchMessages(response);
-            // console.log("FLOTORCHLLM OUTPUT", output)
-
             return output;
         } catch (err) {
             throw(err);
