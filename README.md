@@ -10,11 +10,11 @@ FloTorch is an all-in-one AI gateway.
 
 [Installation](#installation)  
 [Operations](#operations)  
-[Credentials](#credentials)  <!-- delete if no auth needed -->  
+[Credentials](#credentials) 
 [Compatibility](#compatibility)  
-[Usage](#usage)  <!-- delete if not using this section -->  
+[Usage](#usage) 
 [Resources](#resources)  
-[Version history](#version-history)  <!-- delete if not using this section -->  
+[Version history](#version-history) 
 
 ## Installation
 
