@@ -16,7 +16,6 @@ import {
     convertToFloTorchToolDefinitions,
     convertToLangChainMessages,
 } from "../langchain/utils"
-import { CallbackManager } from "@langchain/core/callbacks/manager";
 
 export interface FloTorchLangChainLLMParams extends FloTorchParams, BaseChatModelParams {
     llm?: FloTorchLLM;
@@ -44,24 +43,6 @@ export class FloTorchLangChainLLM extends BaseChatModel {
     }
 
     async _generate(messages: BaseMessage[]): Promise<ChatResult> {
-        let handlers: any[] = [];
-
-        if (this.callbacks) {
-            if (Array.isArray(this.callbacks)) {
-                handlers = this.callbacks;
-            } else if (this.callbacks instanceof CallbackManager) {
-                handlers = this.callbacks.handlers;
-            }
-
-        }
-
-        for (const handler of handlers) {
-            // if (handler && 'handleLlmStart' in handler && typeof handler.handleLlmStart === 'function') {
-            //     await handler.handleLlmStart(/* ... */);
-            // }
-            handler.handleLLMStart;
-        }
-
         // LangChain to FloTorch
         const inputFloTorchMessages = convertToFloTorchMessages(messages);
 
@@ -73,13 +54,6 @@ export class FloTorchLangChainLLM extends BaseChatModel {
         const langchainMessages = convertToLangChainMessages(outputFloTorchMessages)
 
         const result = convertToChatResult(langchainMessages)
-
-        for (const handler of handlers) {
-            // if (handler && 'handleLlmStart' in handler && typeof handler.handleLlmStart === 'function') {
-            //     await handler.handleLlmStart(/* ... */);
-            // }
-            handler.handleLLMEnd;
-        }
 
         return result;
     }

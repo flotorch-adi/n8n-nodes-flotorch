@@ -1,5 +1,5 @@
-import type { INodeProperties } from 'n8n-workflow';
-import type { ILoadOptionsFunctions } from 'n8n-workflow';
+import type { INodeProperties, ILoadOptionsFunctions  } from 'n8n-workflow';
+
 
 /**
  * Shared n8n resource locator for selecting FloTorch models.
@@ -20,8 +20,7 @@ export const flotorchModelList: INodeProperties = {
     type: 'resourceLocator',
     default: { mode: 'list', value: 'flotorch/flotorch-aws-nova-micro', cachedResultName: 'Amazon Nova Micro' },
     required: true,
-    description:
-        'The model which will generate the completion. <a href="https:flotorch.ai">Learn more</a>.',
+    description: 'The model which will generate the completion. <a href="https://https:flotorch.ai">Learn more</a>.',
     modes: [
         {
             displayName: 'From List',

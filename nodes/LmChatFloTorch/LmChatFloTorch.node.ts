@@ -6,7 +6,6 @@ import {
 	type SupplyData,
 } from 'n8n-workflow'
 import { FloTorchLangChainLLM, FloTorchLangChainLLMParams } from '../../flotorch/langchain/llm'
-import { FloTorchLlmTracing } from './handler';
 import { flotorchNodeCredentials, flotorchNodeIcon } from '../common/flotorchNodeDescription';
 import { flotorchModelList, flotorchModelSearch } from '../common/flotorchModelList';
 
@@ -25,10 +24,11 @@ export class LmChatFloTorch implements INodeType {
 		inputs: [],
 		outputs: [NodeConnectionTypes.AiLanguageModel],
 		outputNames: ['Model'],
-		credentials: [flotorchNodeCredentials],
+		credentials: flotorchNodeCredentials,
 		properties: [
 			flotorchModelList
 		],
+		usableAsTool: true,
 	}
 
 	methods = {
@@ -37,7 +37,7 @@ export class LmChatFloTorch implements INodeType {
 		},
 	};
 
-	async supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData> {
+	async supplyData(this: ISupplyDataFunctions): Promise<SupplyData> {
 		const model = this.getNodeParameter('model.value', 0) as string;
 		const credentials = await this.getCredentials('flotorchApi');
 		const apiKey = credentials.apiKey as string;
@@ -47,7 +47,6 @@ export class LmChatFloTorch implements INodeType {
 			model: model,
 			apiKey: apiKey,
 			baseUrl: baseUrl,
-			callbacks: [new FloTorchLlmTracing(this)],
 		}
 
 		const chatModel = new FloTorchLangChainLLM(fields);

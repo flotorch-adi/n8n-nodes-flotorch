@@ -16,7 +16,7 @@ export class FloTorchLLM {
         this._baseUrl = baseUrl;
     }
 
-    async invoke(messages: FloTorchMessage[], tools?: FloTorchToolDefinition[], options?: Record<string, any>): Promise<FloTorchMessage[]> {
+    async invoke(messages: FloTorchMessage[], tools?: FloTorchToolDefinition[], options?: Record<string, unknown>): Promise<FloTorchMessage[]> {
         try {
             const params = {
                 model: this._model,
@@ -30,7 +30,7 @@ export class FloTorchLLM {
             const output = await getFloTorchMessages(response);
             return output;
         } catch (err) {
-            throw(err);
+            throw new Error(`FloTorch API error: ${(err as Error).message}`);
         }
     }
 }

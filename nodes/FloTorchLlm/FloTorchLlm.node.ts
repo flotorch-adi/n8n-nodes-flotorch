@@ -22,11 +22,12 @@ export class FloTorchLlm implements INodeType {
 		},
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
-		credentials: [flotorchNodeCredentials],
+		credentials: flotorchNodeCredentials,
 		requestDefaults: flotorchNodeRequestDefaults,
 		properties: [
 			flotorchModelList
 		],
+		usableAsTool: true,
 	};
 
 	methods = {
@@ -64,7 +65,7 @@ export class FloTorchLlm implements INodeType {
 					content: input_content,
 				});
 
-				let options: IHttpRequestOptions = {
+				const options: IHttpRequestOptions = {
 					url: url,
 					method: 'POST',
 					body: {
