@@ -65,7 +65,14 @@ export interface FloTorchMessage {
   content?: string | undefined;
   tool_calls?: FloTorchToolCall[];
   tool_call_id?: string | undefined;
-  metadata?: Record<string, any>;
+  metadata?: {
+    model: string,
+    usage: {
+      completion_tokens: number;
+      prompt_tokens: number;
+      total_tokens: number;
+    }
+  };
 };
 
 export interface FloTorchToolDefinition {
@@ -81,7 +88,7 @@ export interface FloTorchToolCall {
   type: string,
   function: {
     name: string,
-    arguments: Record<string, any> | string,
+    arguments: Record<string, unknown> | string,
   },
   id: string,
 }
@@ -95,9 +102,9 @@ export interface FloTorchParams {
 interface InvokeParams extends FloTorchParams {
   messages: FloTorchMessage[];
   tools?: FloTorchToolDefinition[];
-  response_format?: any;
-  extra_body?: Record<string, any>;
-  [key: string]: any;
+  response_format?: object;
+  extra_body?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 export async function chatCompletion(params: InvokeParams) {
@@ -148,10 +155,6 @@ export async function chatCompletion(params: InvokeParams) {
 
 export async function getFloTorchMessages(response: Response): Promise<FloTorchMessage[]> {
   const json = await response.json();
-
-  console.log('FLOTORCH RESPONSE JSON:');
-  console.dir(json, { depth: null, colors: true });
-
 
   const parsed = FloTorchChatResponseSchema.safeParse(json);
 

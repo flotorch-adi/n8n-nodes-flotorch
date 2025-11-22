@@ -85,9 +85,9 @@ export function convertToLangChainMessages(messages: FloTorchMessage[]): BaseMes
                     content: content,
                     tool_calls: convertToLangChainToolCalls(msg.tool_calls || []),
                     usage_metadata: {
-                        input_tokens: metadata?.usage.prompt_tokens,
-                        output_tokens: metadata?.usage.completion_tokens,
-                        total_tokens: metadata?.usage.total_tokens,
+                        input_tokens: metadata?.usage.prompt_tokens ?? -1,
+                        output_tokens: metadata?.usage.completion_tokens ?? -1,
+                        total_tokens: metadata?.usage.total_tokens ?? -1,
                     },
                     additional_kwargs: {
                         model: metadata?.model as string,
@@ -114,9 +114,9 @@ export function convertToLangChainMessages(messages: FloTorchMessage[]): BaseMes
                     content: content,
                     tool_calls: convertToLangChainToolCalls(msg.tool_calls || []),
                     usage_metadata: {
-                        input_tokens: metadata?.usage.prompt_tokens,
-                        output_tokens: metadata?.usage.completion_tokens,
-                        total_tokens: metadata?.usage.total_tokens,
+                        input_tokens: metadata?.usage.prompt_tokens ?? -1,
+                        output_tokens: metadata?.usage.completion_tokens ?? -1,
+                        total_tokens: metadata?.usage.total_tokens ?? -1,
                     },
                     additional_kwargs: {
                         model: metadata?.model as string,

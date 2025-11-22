@@ -50,6 +50,7 @@ export class FloTorchAgent implements INodeType {
 		properties: [
 			flotorchModelList
 		],
+		usableAsTool: true,
 	};
 
 	methods = {
@@ -91,7 +92,7 @@ export async function agentExecute(
 		tools,
 	});
 
-	let chatHistory: BaseMessage[] | undefined = memory ? await loadChatHistory(memory) : undefined;
+	const chatHistory: BaseMessage[] | undefined = memory ? await loadChatHistory(memory) : undefined;
 
 	// Process each input item
 	for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {

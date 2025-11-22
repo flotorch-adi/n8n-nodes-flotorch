@@ -27,6 +27,7 @@ export class FloTorchLlm implements INodeType {
 		properties: [
 			flotorchModelList
 		],
+		usableAsTool: true,
 	};
 
 	methods = {
@@ -64,7 +65,7 @@ export class FloTorchLlm implements INodeType {
 					content: input_content,
 				});
 
-				let options: IHttpRequestOptions = {
+				const options: IHttpRequestOptions = {
 					url: url,
 					method: 'POST',
 					body: {

@@ -6,16 +6,13 @@ import type {
 	INodeProperties,
 	Icon
 } from 'n8n-workflow';
-import { FloTorchPages, FloTorchBaseUrls } from '../flotorch/sdk/constants';
+import {  FloTorchBaseUrls } from '../flotorch/sdk/constants';
 
 export class FloTorchApi implements ICredentialType {
 	name = 'flotorchApi';
-
-	displayName = 'FloTorch';
-
-	icon: Icon = { light: 'file:../icons/flotorch.svg', dark: 'file:../icons/flotorch.svg' };
-
-	documentationUrl = FloTorchPages.HOMEPAGE;
+	displayName = 'FloTorch API';
+	icon: Icon = "file:../icons/flotorch.svg";
+	documentationUrl = "https://docs.flotorch.cloud/introduction/onboarding";
 
 	properties: INodeProperties[] = [
 		{
