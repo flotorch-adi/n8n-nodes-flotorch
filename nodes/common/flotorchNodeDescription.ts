@@ -8,7 +8,9 @@ export const flotorchNodeRequestDefaults: DeclarativeRestApiSettings.HttpRequest
         '={{ $credentials.baseUrl?.split("/").slice(0,-1).join("/") ?? "https://gateway.flotorch.cloud" }}',
 }
 
-export const flotorchNodeCredentials: INodeCredentialDescription = {
-    name: 'flotorchApi',
-    required: true,
-}
+export const flotorchNodeCredentials: INodeCredentialDescription[] = [
+    {
+        name: 'flotorchApi',
+        required: true,
+    }
+]

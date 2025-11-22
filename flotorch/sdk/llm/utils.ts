@@ -14,7 +14,18 @@ export const FloTorchChatResponseSuccessSchema = z.object({
             z.object({
               function: z.object({
                 name: z.string(),
-                arguments: z.record(z.any(), z.any()),
+                arguments: z
+                  .union([z.record(z.any(), z.any()), z.string()]) // accept object OR string
+                  .transform((arg) => {
+                    if (typeof arg === 'string') {
+                      try {
+                        return JSON.parse(arg); // parse string into object
+                      } catch {
+                        return {}; // fallback if invalid JSON
+                      }
+                    }
+                    return arg; // already an object
+                  }),
               }),
               type: z.string(),
               id: z.string(),
@@ -111,7 +122,7 @@ export async function chatCompletion(params: InvokeParams) {
       }
     }
   }
-  
+
   const body = {
     model: model,
     messages: messages,
@@ -138,10 +149,21 @@ export async function chatCompletion(params: InvokeParams) {
 export async function getFloTorchMessages(response: Response): Promise<FloTorchMessage[]> {
   const json = await response.json();
 
+  console.log('FLOTORCH RESPONSE JSON:');
+  console.dir(json, { depth: null, colors: true });
+
+
   const parsed = FloTorchChatResponseSchema.safeParse(json);
 
   if (!parsed.success) {
-    throw new Error("Invalid FloTorch response");
+    const formatted = parsed.error.issues
+      .map(issue => {
+        const path = issue.path.length ? issue.path.join('.') : '(root)';
+        return `• ${path}: ${issue.message}`;
+      })
+      .join('\n');
+
+    throw new Error(`Invalid FloTorch response:\n${formatted}`);
   }
 
   const data = parsed.data;

@@ -45,7 +45,7 @@ export class FloTorchAgent implements INodeType {
 			}
 		],
 		outputs: [NodeConnectionTypes.Main],
-		credentials: [flotorchNodeCredentials],
+		credentials: flotorchNodeCredentials,
 		requestDefaults: flotorchNodeRequestDefaults,
 		properties: [
 			flotorchModelList

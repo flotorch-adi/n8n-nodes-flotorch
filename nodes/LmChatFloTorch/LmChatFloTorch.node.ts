@@ -25,7 +25,7 @@ export class LmChatFloTorch implements INodeType {
 		inputs: [],
 		outputs: [NodeConnectionTypes.AiLanguageModel],
 		outputNames: ['Model'],
-		credentials: [flotorchNodeCredentials],
+		credentials: flotorchNodeCredentials,
 		properties: [
 			flotorchModelList
 		],

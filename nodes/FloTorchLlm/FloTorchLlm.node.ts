@@ -22,7 +22,7 @@ export class FloTorchLlm implements INodeType {
 		},
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
-		credentials: [flotorchNodeCredentials],
+		credentials: flotorchNodeCredentials,
 		requestDefaults: flotorchNodeRequestDefaults,
 		properties: [
 			flotorchModelList
