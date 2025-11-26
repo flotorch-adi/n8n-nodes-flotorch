@@ -1,10 +1,10 @@
 services:
   n8n:
-    build: .                    # Build from Dockerfile in current folder
-    image: n8n-flotorch:latest  # Optional: tag for the image
+    build: .
+    image: n8n-flotorch:latest
     container_name: n8n-flotorch
     ports:
-      - "5678:5678"             # Map host port 5678 to container
+      - "5678:5678"
     environment:
       - N8N_HOST=localhost
       - N8N_PORT=5678
