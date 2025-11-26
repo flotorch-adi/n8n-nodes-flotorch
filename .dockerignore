@@ -1,0 +1,34 @@
+# Node modules and build artifacts
+node_modules
+dist
+
+# Git files
+.git
+.gitignore
+
+# IDE/editor configs
+.vscode
+.idea
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Local environment files
+.env
+.env.local
+
+# Developer tools
+.prettierrc.js
+eslint.config.mjs
+
+# Info files
+README.md
+LICENSE.md
+CODE_OF_CONDUCT.md
+CHANGELOG.md

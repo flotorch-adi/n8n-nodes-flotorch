@@ -8,17 +8,12 @@ FloTorch is an all-in-one AI gateway.
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
-[Installation](#installation)  
 [Operations](#operations)  
-[Credentials](#credentials) 
+[Installation](#installation)  
+[Credentials](#credentials)  
 [Compatibility](#compatibility)  
-[Usage](#usage) 
 [Resources](#resources)  
-[Version history](#version-history) 
-
-## Installation
-
-Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
+[Version history](#version-history)
 
 ## Operations
 
@@ -34,17 +29,36 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 - Connects to n8n's AI Agent
 
-## Credentials
+## Installation
 
-Visit [FloTorch.ai](https://flotorch.ai) to create an account.
+### Docker
 
-## Compatibility
+```bash
+git clone https://github.com/flotorch-adi/n8n-nodes-flotorch.git
+docker build -t n8n-flotorch:latest .
+docker run -it --rm -p 5678:5678 \
+  -v n8n_data:/home/node/.n8n \
+  n8n-flotorch:latest
+```
 
-Node.js 24
+### Docker Compose
 
-n8n 1.117.3
+```bash
+git clone https://github.com/flotorch-adi/n8n-nodes-flotorch.git
+docker compose up --build
+```
 
-## Usage
+### Docker Hub
+
+```bash
+docker pull flotorchadi/n8n-flotorch:latest
+docker run -it --rm \
+  -p 5678:5678 \
+  -v n8n_data:/home/node/.n8n \
+  flotorchadi/n8n-flotorch:latest
+```
+
+### npm
 
 [Try out n8n](https://docs.n8n.io/try-it-out/)
 
@@ -59,7 +73,7 @@ n8n 1.117.3
 2. Clone the repository
 
     ```bash
-    git clone https://github.com/adibudithi-fissionlabs/n8n-nodes-flotorch.git
+    git clone https://github.com/flotorch/n8n-nodes-flotorch.git
     ```
 
 3. Navigate inside the folder
@@ -105,11 +119,23 @@ n8n 1.117.3
     n8n start
     ```
 
+Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
+
+## Credentials
+
+Visit [flotorch.ai](https://flotorch.ai) to create an account.
+
+## Compatibility
+
+Node.js 24
+
+n8n 1.117.3
+
 ## Resources
 
-* [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
-* [FloTorch resources](https://github.com/FloTorch/Resources)
+- [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
+- [FloTorch resources](https://github.com/FloTorch/Resources)
 
 ## Version history
 
-* v1 - First working version
+- v1 - First working version

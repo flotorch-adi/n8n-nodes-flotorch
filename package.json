@@ -13,7 +13,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/flotorch/n8n-nodes-flotorch.git"
+		"url": "https://github.com/flotorch-adi/n8n-nodes-flotorch.git"
 	},
 	"scripts": {
 		"build": "n8n-node build",
@@ -55,8 +55,6 @@
 		"n8n-workflow": "*"
 	},
 	"dependencies": {
-		"@flotorch/langchain": "file:../flotorch/packages/langchain",
-		"@flotorch/sdk": "file:../flotorch/packages/sdk",
 		"@langchain/core": "^1.0.0",
 		"@langchain/openai": "^1.0.0",
 		"langchain": "^1.0.0",
