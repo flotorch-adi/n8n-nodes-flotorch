@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  n8n:
+    build: .                    # Build from Dockerfile in current folder
+    image: n8n-flotorch:latest  # Optional: tag for the image
+    container_name: n8n-flotorch
+    ports:
+      - "5678:5678"             # Map host port 5678 to container
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_RUNNERS_ENABLED=true
+      - GENERIC_TIMEZONE=America/Chicago
+      - N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/custom/n8n-nodes-flotorch
+    volumes:
+      - n8n_data:/home/node/.n8n  # Persist workflows, credentials, settings
+    restart: unless-stopped
+
+volumes:
+  n8n_data:
