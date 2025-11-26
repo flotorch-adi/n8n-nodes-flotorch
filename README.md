@@ -10,11 +10,11 @@ FloTorch is an all-in-one AI gateway.
 
 [Installation](#installation)  
 [Operations](#operations)  
-[Credentials](#credentials) 
+[Credentials](#credentials)
 [Compatibility](#compatibility)  
-[Usage](#usage) 
+[Usage](#usage)
 [Resources](#resources)  
-[Version history](#version-history) 
+[Version history](#version-history)
 
 ## Installation
 
@@ -36,7 +36,7 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Credentials
 
-Visit [FloTorch.ai](https://flotorch.ai) to create an account.
+Visit [flotorch.ai](https://flotorch.ai) to create an account.
 
 ## Compatibility
 
@@ -107,9 +107,9 @@ n8n 1.117.3
 
 ## Resources
 
-* [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
-* [FloTorch resources](https://github.com/FloTorch/Resources)
+- [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
+- [FloTorch resources](https://github.com/FloTorch/Resources)
 
 ## Version history
 
-* v1 - First working version
+- v1 - First working version

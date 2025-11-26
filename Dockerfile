@@ -2,16 +2,25 @@ FROM n8nio/n8n:latest
 
 USER root
 
-# Create folder for custom nodes
+# Create folder for custom node inside container
 RUN mkdir -p /home/node/.n8n/custom/n8n-nodes-flotorch
 
-# Copy your node: built JS + package.json + node_modules
-COPY dist /home/node/.n8n/custom/n8n-nodes-flotorch
-COPY package.json /home/node/.n8n/custom/n8n-nodes-flotorch/
-COPY node_modules /home/node/.n8n/custom/n8n-nodes-flotorch/node_modules
+# Copy the entire project into container
+COPY . /home/node/.n8n/custom/n8n-nodes-flotorch
 
-# Switch back to node user
+WORKDIR /home/node/.n8n/custom/n8n-nodes-flotorch
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Install dependencies
+RUN pnpm install
+
+# Compile TypeScript
+RUN npm run build
+
+# Set custom nodes path
+ENV N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/custom/n8n-nodes-flotorch/dist
+
+# Switch back to n8n user
 USER node
-
-# Tell n8n where to load your node
-ENV N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/custom/n8n-nodes-flotorch
